@@ -21,11 +21,7 @@ const Login = () => {
   // Redirect if already logged in
   useEffect(() => {
     if (user && roles.length > 0) {
-      if (roles.includes('super_admin')) {
-        navigate('/super-admin');
-      } else {
-        navigate('/admin');
-      }
+      navigate('/admin');
     }
   }, [user, roles, navigate]);
 

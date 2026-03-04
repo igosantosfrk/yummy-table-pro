@@ -21,6 +21,8 @@ const menuItems = [
   { path: '/admin/settings', label: 'Configurações', icon: Settings },
 ];
 
+const superAdminItem = { path: '/admin/super', label: 'Super Admin', icon: Shield };
+
 const AdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { profile, isSuperAdmin, signOut } = useAuth();
@@ -72,19 +74,26 @@ const AdminLayout = () => {
 
         {/* Nav */}
         <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
-          {isSuperAdmin && (
-            <Link
-              to="/super-admin"
-              className={cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all",
-                "text-warning hover:bg-sidebar-accent"
-              )}
-            >
-              <Shield className="h-4 w-4" />
-              Super Admin
-              <ChevronRight className="h-4 w-4 ml-auto" />
-            </Link>
-          )}
+          {isSuperAdmin && (() => {
+            const isActive = location.pathname === superAdminItem.path;
+            return (
+              <Link
+                to={superAdminItem.path}
+                onClick={() => setSidebarOpen(false)}
+                className={cn(
+                  "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all",
+                  isActive
+                    ? "bg-warning/20 text-warning shadow-glow-sm"
+                    : "text-warning/80 hover:bg-warning/10 hover:text-warning"
+                )}
+              >
+                <superAdminItem.icon className="h-4 w-4" />
+                {superAdminItem.label}
+              </Link>
+            );
+          })()}
+
+          <div className="h-px bg-sidebar-border my-2" />
 
           {menuItems.map((item) => {
             const isActive = location.pathname === item.path;
@@ -145,7 +154,7 @@ const AdminLayout = () => {
             <Menu className="h-5 w-5" />
           </Button>
           <h2 className="text-lg font-display font-semibold text-foreground">
-            {menuItems.find(i => i.path === location.pathname)?.label || 'Admin'}
+            {location.pathname === '/admin/super' ? 'Super Admin' : menuItems.find(i => i.path === location.pathname)?.label || 'Admin'}
           </h2>
         </header>
 
