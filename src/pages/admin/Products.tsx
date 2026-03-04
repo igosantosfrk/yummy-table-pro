@@ -101,7 +101,16 @@ const Products = () => {
           <h1 className="text-2xl font-display font-bold">Produtos</h1>
           <p className="text-muted-foreground">{products.length} produtos cadastrados</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
+          {tenantSlug && (
+            <Button
+              variant="outline"
+              onClick={() => window.open(`/${tenantSlug}`, '_blank')}
+              className="gap-2 border-success/30 hover:border-success hover:bg-success/5"
+            >
+              <ExternalLink className="h-4 w-4 text-success" /> Ver Cardápio
+            </Button>
+          )}
           <Button
             variant="outline"
             onClick={() => setImportOpen(true)}
