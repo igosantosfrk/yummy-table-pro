@@ -29,27 +29,41 @@ interface Category {
 }
 
 const Products = () => {
-  const { tenantId } = useAuth();
+  const { tenantId, isSuperAdmin } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [search, setSearch] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
   const [editing, setEditing] = useState<Product | null>(null);
+  const [activeTenantId, setActiveTenantId] = useState<string | null>(null);
+
+  // For super_admin without tenant, fetch first tenant
+  useEffect(() => {
+    const resolveTenant = async () => {
+      if (tenantId) {
+        setActiveTenantId(tenantId);
+      } else if (isSuperAdmin) {
+        const { data } = await supabase.from('tenants').select('id').limit(1).single();
+        if (data) setActiveTenantId(data.id);
+      }
+    };
+    resolveTenant();
+  }, [tenantId, isSuperAdmin]);
 
   const fetchProducts = async () => {
-    if (!tenantId) return;
-    const { data } = await supabase.from('products').select('*').eq('tenant_id', tenantId).order('sort_order');
+    if (!activeTenantId) return;
+    const { data } = await supabase.from('products').select('*').eq('tenant_id', activeTenantId).order('sort_order');
     setProducts(data || []);
   };
 
   const fetchCategories = async () => {
-    if (!tenantId) return;
-    const { data } = await supabase.from('categories').select('id, name').eq('tenant_id', tenantId).eq('is_active', true).order('sort_order');
+    if (!activeTenantId) return;
+    const { data } = await supabase.from('categories').select('id, name').eq('tenant_id', activeTenantId).eq('is_active', true).order('sort_order');
     setCategories(data || []);
   };
 
-  useEffect(() => { fetchProducts(); fetchCategories(); }, [tenantId]);
+  useEffect(() => { fetchProducts(); fetchCategories(); }, [activeTenantId]);
 
   const openCreate = () => { setEditing(null); setDialogOpen(true); };
   const openEdit = (p: Product) => { setEditing(p); setDialogOpen(true); };
@@ -68,6 +82,14 @@ const Products = () => {
 
   const filtered = products.filter(p => p.name.toLowerCase().includes(search.toLowerCase()));
 
+  if (!activeTenantId) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -76,8 +98,12 @@ const Products = () => {
           <p className="text-muted-foreground">{products.length} produtos cadastrados</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setImportOpen(true)} className="gap-2">
-            <FileSpreadsheet className="h-4 w-4" /> Importar
+          <Button
+            variant="outline"
+            onClick={() => setImportOpen(true)}
+            className="gap-2 border-primary/30 hover:border-primary hover:bg-primary/5"
+          >
+            <FileSpreadsheet className="h-4 w-4 text-primary" /> Importar em lote
           </Button>
           <Button onClick={openCreate} className="gradient-primary text-white">
             <Plus className="h-4 w-4 mr-2" /> Novo Produto
@@ -133,25 +159,21 @@ const Products = () => {
         </div>
       )}
 
-      {tenantId && (
-        <>
-          <ProductFormDialog
-            open={dialogOpen}
-            onOpenChange={setDialogOpen}
-            tenantId={tenantId}
-            editing={editing}
-            categories={categories}
-            onSaved={fetchProducts}
-          />
-          <BulkImportDialog
-            open={importOpen}
-            onOpenChange={setImportOpen}
-            tenantId={tenantId}
-            categories={categories}
-            onImported={fetchProducts}
-          />
-        </>
-      )}
+      <ProductFormDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        tenantId={activeTenantId}
+        editing={editing}
+        categories={categories}
+        onSaved={fetchProducts}
+      />
+      <BulkImportDialog
+        open={importOpen}
+        onOpenChange={setImportOpen}
+        tenantId={activeTenantId}
+        categories={categories}
+        onImported={fetchProducts}
+      />
     </div>
   );
 };
