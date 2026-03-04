@@ -77,7 +77,7 @@ const AdminLayout = () => {
               to="/super-admin"
               className={cn(
                 "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all",
-                "text-amber-400 hover:bg-sidebar-accent"
+                "text-warning hover:bg-sidebar-accent"
               )}
             >
               <Shield className="h-4 w-4" />

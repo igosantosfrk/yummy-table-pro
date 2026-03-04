@@ -83,8 +83,8 @@ const SuperAdmin = () => {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center">
-              <Shield className="h-5 w-5 text-amber-400" />
+            <div className="w-10 h-10 rounded-lg bg-warning/20 flex items-center justify-center">
+              <Shield className="h-5 w-5 text-warning" />
             </div>
             <div>
               <h1 className="text-2xl font-display font-bold">Super Admin</h1>
