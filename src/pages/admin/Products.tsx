@@ -39,15 +39,18 @@ const Products = () => {
   const [activeTenantId, setActiveTenantId] = useState<string | null>(null);
   const [tenantSlug, setTenantSlug] = useState<string | null>(null);
 
-  // For super_admin without tenant, fetch first tenant
+  // Resolve tenant and slug
   useEffect(() => {
     const resolveTenant = async () => {
-      if (tenantId) {
-        setActiveTenantId(tenantId);
-      } else if (isSuperAdmin) {
-        const { data } = await supabase.from('tenants').select('id').limit(1);
-        if (data && data.length > 0) setActiveTenantId(data[0].id);
+      let tid = tenantId;
+      if (!tid && isSuperAdmin) {
+        const { data } = await supabase.from('tenants').select('id, slug').limit(1);
+        if (data && data.length > 0) { tid = data[0].id; setTenantSlug(data[0].slug); }
+      } else if (tid) {
+        const { data } = await supabase.from('tenants').select('slug').eq('id', tid).single();
+        if (data) setTenantSlug(data.slug);
       }
+      if (tid) setActiveTenantId(tid);
     };
     resolveTenant();
   }, [tenantId, isSuperAdmin]);
