@@ -37,6 +37,7 @@ const Products = () => {
   const [importOpen, setImportOpen] = useState(false);
   const [editing, setEditing] = useState<Product | null>(null);
   const [activeTenantId, setActiveTenantId] = useState<string | null>(null);
+  const [tenantSlug, setTenantSlug] = useState<string | null>(null);
 
   // For super_admin without tenant, fetch first tenant
   useEffect(() => {
