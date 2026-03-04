@@ -189,7 +189,6 @@ const SuperAdmin = () => {
           </DialogContent>
         </Dialog>
       </div>
-    </div>
   );
 };
 
