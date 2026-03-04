@@ -70,12 +70,12 @@ const ProductFormDialog = ({ open, onOpenChange, tenantId, editing, categories, 
 
   const loadMedia = async (productId: string) => {
     const { data } = await supabase
-      .from('product_media')
+      .from('product_media' as any)
       .select('*')
       .eq('product_id', productId)
       .order('sort_order');
     if (data) {
-      setMedia(data.map(m => ({
+      setMedia((data as any[]).map((m: any) => ({
         id: m.id,
         url: m.url,
         file_path: m.file_path || undefined,
