@@ -154,7 +154,7 @@ const AdminLayout = () => {
             <Menu className="h-5 w-5" />
           </Button>
           <h2 className="text-lg font-display font-semibold text-foreground">
-            {menuItems.find(i => i.path === location.pathname)?.label || 'Admin'}
+            {location.pathname === '/admin/super' ? 'Super Admin' : menuItems.find(i => i.path === location.pathname)?.label || 'Admin'}
           </h2>
         </header>
 
