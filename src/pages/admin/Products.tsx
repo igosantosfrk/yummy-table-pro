@@ -52,18 +52,18 @@ const Products = () => {
   }, [tenantId, isSuperAdmin]);
 
   const fetchProducts = async () => {
-    if (!tenantId) return;
-    const { data } = await supabase.from('products').select('*').eq('tenant_id', tenantId).order('sort_order');
+    if (!activeTenantId) return;
+    const { data } = await supabase.from('products').select('*').eq('tenant_id', activeTenantId).order('sort_order');
     setProducts(data || []);
   };
 
   const fetchCategories = async () => {
-    if (!tenantId) return;
-    const { data } = await supabase.from('categories').select('id, name').eq('tenant_id', tenantId).eq('is_active', true).order('sort_order');
+    if (!activeTenantId) return;
+    const { data } = await supabase.from('categories').select('id, name').eq('tenant_id', activeTenantId).eq('is_active', true).order('sort_order');
     setCategories(data || []);
   };
 
-  useEffect(() => { fetchProducts(); fetchCategories(); }, [tenantId]);
+  useEffect(() => { fetchProducts(); fetchCategories(); }, [activeTenantId]);
 
   const openCreate = () => { setEditing(null); setDialogOpen(true); };
   const openEdit = (p: Product) => { setEditing(p); setDialogOpen(true); };
