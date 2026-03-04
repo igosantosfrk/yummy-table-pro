@@ -37,7 +37,7 @@ const Login = () => {
       if (isLogin) {
         await signIn(email, password);
         toast({ title: 'Bem-vindo de volta!' });
-        navigate('/admin');
+        // Redirect will happen via useEffect when roles load
       } else {
         await signUp(email, password, fullName);
         toast({
