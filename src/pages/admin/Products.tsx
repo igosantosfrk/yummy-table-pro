@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { toast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
-import { Plus, Pencil, Trash2, Package, Search, FileSpreadsheet } from 'lucide-react';
+import { Plus, Pencil, Trash2, Package, Search, FileSpreadsheet, ExternalLink } from 'lucide-react';
 import ProductFormDialog from '@/components/admin/products/ProductFormDialog';
 import BulkImportDialog from '@/components/admin/products/BulkImportDialog';
 
@@ -37,16 +37,20 @@ const Products = () => {
   const [importOpen, setImportOpen] = useState(false);
   const [editing, setEditing] = useState<Product | null>(null);
   const [activeTenantId, setActiveTenantId] = useState<string | null>(null);
+  const [tenantSlug, setTenantSlug] = useState<string | null>(null);
 
-  // For super_admin without tenant, fetch first tenant
+  // Resolve tenant and slug
   useEffect(() => {
     const resolveTenant = async () => {
-      if (tenantId) {
-        setActiveTenantId(tenantId);
-      } else if (isSuperAdmin) {
-        const { data } = await supabase.from('tenants').select('id').limit(1);
-        if (data && data.length > 0) setActiveTenantId(data[0].id);
+      let tid = tenantId;
+      if (!tid && isSuperAdmin) {
+        const { data } = await supabase.from('tenants').select('id, slug').limit(1);
+        if (data && data.length > 0) { tid = data[0].id; setTenantSlug(data[0].slug); }
+      } else if (tid) {
+        const { data } = await supabase.from('tenants').select('slug').eq('id', tid).single();
+        if (data) setTenantSlug(data.slug);
       }
+      if (tid) setActiveTenantId(tid);
     };
     resolveTenant();
   }, [tenantId, isSuperAdmin]);
@@ -97,7 +101,16 @@ const Products = () => {
           <h1 className="text-2xl font-display font-bold">Produtos</h1>
           <p className="text-muted-foreground">{products.length} produtos cadastrados</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
+          {tenantSlug && (
+            <Button
+              variant="outline"
+              onClick={() => window.open(`/${tenantSlug}`, '_blank')}
+              className="gap-2 border-success/30 hover:border-success hover:bg-success/5"
+            >
+              <ExternalLink className="h-4 w-4 text-success" /> Ver Cardápio
+            </Button>
+          )}
           <Button
             variant="outline"
             onClick={() => setImportOpen(true)}
