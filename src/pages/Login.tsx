@@ -15,8 +15,19 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, user, roles } = useAuth();
   const navigate = useNavigate();
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user && roles.length > 0) {
+      if (roles.includes('super_admin')) {
+        navigate('/super-admin');
+      } else {
+        navigate('/admin');
+      }
+    }
+  }, [user, roles, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
