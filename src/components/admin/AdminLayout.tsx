@@ -21,6 +21,8 @@ const menuItems = [
   { path: '/admin/settings', label: 'Configurações', icon: Settings },
 ];
 
+const superAdminItem = { path: '/admin/super', label: 'Super Admin', icon: Shield };
+
 const AdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { profile, isSuperAdmin, signOut } = useAuth();

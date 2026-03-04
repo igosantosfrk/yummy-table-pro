@@ -31,12 +31,7 @@ const App = () => (
           <Routes>
             <Route path="/login" element={<Login />} />
 
-            {/* Super Admin */}
-            <Route path="/super-admin" element={
-              <ProtectedRoute requiredRole="super_admin"><SuperAdmin /></ProtectedRoute>
-            } />
-
-            {/* Restaurant Admin */}
+            {/* Admin Panel - both super_admin and tenant_admin */}
             <Route path="/admin" element={
               <ProtectedRoute requiredRole="tenant_admin"><AdminLayout /></ProtectedRoute>
             }>
@@ -48,6 +43,9 @@ const App = () => (
               <Route path="payments" element={<Payments />} />
               <Route path="whatsapp" element={<WhatsApp />} />
               <Route path="settings" element={<AdminSettings />} />
+              <Route path="super" element={
+                <ProtectedRoute requiredRole="super_admin"><SuperAdmin /></ProtectedRoute>
+              } />
             </Route>
 
             {/* Public Menu */}
