@@ -120,7 +120,7 @@ const ProductFormDialog = ({ open, onOpenChange, tenantId, editing, categories, 
     // Sync media records
     if (productId) {
       // Delete existing media records
-      await supabase.from('product_media').delete().eq('product_id', productId);
+      await supabase.from('product_media' as any).delete().eq('product_id', productId);
 
       // Insert current media
       if (media.length > 0) {
@@ -133,7 +133,7 @@ const ProductFormDialog = ({ open, onOpenChange, tenantId, editing, categories, 
           sort_order: i,
           is_cover: m.is_cover,
         }));
-        await supabase.from('product_media').insert(mediaPayload);
+        await (supabase.from('product_media' as any) as any).insert(mediaPayload);
       }
     }
 
