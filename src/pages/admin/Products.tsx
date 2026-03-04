@@ -44,8 +44,8 @@ const Products = () => {
       if (tenantId) {
         setActiveTenantId(tenantId);
       } else if (isSuperAdmin) {
-        const { data } = await supabase.from('tenants').select('id').limit(1).single();
-        if (data) setActiveTenantId(data.id);
+        const { data } = await supabase.from('tenants').select('id').limit(1);
+        if (data && data.length > 0) setActiveTenantId(data[0].id);
       }
     };
     resolveTenant();
