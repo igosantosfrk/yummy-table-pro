@@ -13,7 +13,7 @@ import { toast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import {
-  Shield, Plus, Building2, Users, ShoppingBag, DollarSign, ArrowLeft
+  Shield, Plus, Building2, Users, ShoppingBag, DollarSign
 } from 'lucide-react';
 import type { Database } from '@/integrations/supabase/types';
 
