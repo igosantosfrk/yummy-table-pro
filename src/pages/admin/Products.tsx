@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { toast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
-import { Plus, Pencil, Trash2, Package, Search, FileSpreadsheet } from 'lucide-react';
+import { Plus, Pencil, Trash2, Package, Search, FileSpreadsheet, ExternalLink } from 'lucide-react';
 import ProductFormDialog from '@/components/admin/products/ProductFormDialog';
 import BulkImportDialog from '@/components/admin/products/BulkImportDialog';
 
