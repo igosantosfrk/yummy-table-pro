@@ -29,13 +29,27 @@ interface Category {
 }
 
 const Products = () => {
-  const { tenantId } = useAuth();
+  const { tenantId, isSuperAdmin } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [search, setSearch] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
   const [editing, setEditing] = useState<Product | null>(null);
+  const [activeTenantId, setActiveTenantId] = useState<string | null>(null);
+
+  // For super_admin without tenant, fetch first tenant
+  useEffect(() => {
+    const resolveTenant = async () => {
+      if (tenantId) {
+        setActiveTenantId(tenantId);
+      } else if (isSuperAdmin) {
+        const { data } = await supabase.from('tenants').select('id').limit(1).single();
+        if (data) setActiveTenantId(data.id);
+      }
+    };
+    resolveTenant();
+  }, [tenantId, isSuperAdmin]);
 
   const fetchProducts = async () => {
     if (!tenantId) return;
