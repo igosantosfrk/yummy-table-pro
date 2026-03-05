@@ -104,19 +104,17 @@ const Products = () => {
         <div className="flex flex-wrap gap-2">
           {tenantSlug && (
             <Button
-              variant="outline"
               onClick={() => window.open(`/${tenantSlug}`, '_blank')}
-              className="gap-2 border-success/30 hover:border-success hover:bg-success/5"
+              className="gap-2 bg-success hover:bg-success/90 text-success-foreground"
             >
-              <ExternalLink className="h-4 w-4 text-success" /> Ver Cardápio
+              <ExternalLink className="h-4 w-4" /> Ver Cardápio
             </Button>
           )}
           <Button
-            variant="outline"
             onClick={() => setImportOpen(true)}
-            className="gap-2 border-primary/30 hover:border-primary hover:bg-primary/5"
+            className="gap-2 gradient-primary text-white"
           >
-            <FileSpreadsheet className="h-4 w-4 text-primary" /> Importar em lote
+            <FileSpreadsheet className="h-4 w-4" /> Importar em lote
           </Button>
           <Button onClick={openCreate} className="gradient-primary text-white">
             <Plus className="h-4 w-4 mr-2" /> Novo Produto
