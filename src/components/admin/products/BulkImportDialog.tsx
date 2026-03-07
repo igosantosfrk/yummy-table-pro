@@ -147,6 +147,26 @@ const BulkImportDialog = ({ open, onOpenChange, tenantId, categories, onImported
             <Download className="h-4 w-4" /> Baixar modelo CSV
           </Button>
 
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground">Categoria dos produtos</label>
+            <Select value={selectedCategoryId} onValueChange={setSelectedCategoryId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione uma categoria (opcional)" />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((cat) => (
+                  <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <div className="flex items-start gap-2 p-3 rounded-lg bg-muted/50 border border-border">
+              <Info className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+              <p className="text-xs text-muted-foreground">
+                As categorias precisam ser criadas previamente no módulo de <strong>Categorias</strong> para aparecerem aqui. Caso não selecione nenhuma, os produtos serão importados sem categoria.
+              </p>
+            </div>
+          </div>
+
           <input
             ref={fileRef}
             type="file"
