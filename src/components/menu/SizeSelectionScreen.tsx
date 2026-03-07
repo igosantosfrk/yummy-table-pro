@@ -20,7 +20,7 @@ const SizeSelectionScreen = ({ parentCategory, subCategories, onSelectSubCategor
     <div className="max-w-2xl mx-auto px-4 mt-6">
       <button
         onClick={onBack}
-        className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-4"
+        className="flex items-center gap-2 text-[hsl(220,10%,55%)] hover:text-[hsl(220,14%,96%)] transition-colors mb-4"
       >
         <ArrowLeft className="h-4 w-4" />
         <span className="text-sm font-medium">Voltar</span>
