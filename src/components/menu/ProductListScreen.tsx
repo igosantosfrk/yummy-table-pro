@@ -49,7 +49,7 @@ const ProductListScreen = ({ category, products, cart, onAddToCart, onUpdateQuan
         <span className="text-sm font-medium">Voltar</span>
       </button>
 
-      <h2 className="text-xl font-display font-bold text-foreground mb-4">
+      <h2 className="text-xl font-display font-bold text-[hsl(220,14%,96%)] mb-4">
         {category.icon ? `${category.icon} ` : ''}{category.name}
       </h2>
 
