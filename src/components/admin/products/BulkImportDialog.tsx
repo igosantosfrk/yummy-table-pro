@@ -1,9 +1,10 @@
 import { useState, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-import { Upload, FileSpreadsheet, CheckCircle2, AlertCircle, Download } from 'lucide-react';
+import { Upload, FileSpreadsheet, CheckCircle2, AlertCircle, Download, Info } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
