@@ -26,10 +26,10 @@ const SizeSelectionScreen = ({ parentCategory, subCategories, onSelectSubCategor
         <span className="text-sm font-medium">Voltar</span>
       </button>
 
-      <h2 className="text-xl font-display font-bold text-foreground mb-2">
+      <h2 className="text-xl font-display font-bold text-[hsl(220,14%,96%)] mb-2">
         {parentCategory.icon ? `${parentCategory.icon} ` : ''}{parentCategory.name}
       </h2>
-      <p className="text-sm text-muted-foreground mb-6">Escolha o tamanho</p>
+      <p className="text-sm text-[hsl(220,10%,55%)] mb-6">Escolha o tamanho</p>
 
       <div className="space-y-3">
         {subCategories.map((sub, i) => (
