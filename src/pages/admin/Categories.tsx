@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { toast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 import { Plus, Pencil, Trash2, FolderOpen, GripVertical } from 'lucide-react';
+import { DragDropContext, Droppable, Draggable, type DropResult } from '@hello-pangea/dnd';
 
 interface Category {
   id: string;
@@ -83,6 +84,20 @@ const Categories = () => {
     fetchCategories();
   };
 
+  const handleDragEnd = async (result: DropResult) => {
+    if (!result.destination) return;
+    const items = Array.from(categories);
+    const [reordered] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reordered);
+    setCategories(items);
+
+    // Persist new order
+    const updates = items.map((item, index) =>
+      supabase.from('categories').update({ sort_order: index }).eq('id', item.id)
+    );
+    await Promise.all(updates);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -104,34 +119,46 @@ const Categories = () => {
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-2">
-          {categories.map((c, i) => (
-            <motion.div
-              key={c.id}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.05 }}
-            >
-              <Card className="glass">
-                <CardContent className="flex items-center gap-4 p-4">
-                  <GripVertical className="h-5 w-5 text-muted-foreground cursor-grab" />
-                  <div className="flex-1">
-                    <h3 className="font-semibold">{c.icon ? `${c.icon} ` : ''}{c.name}</h3>
-                    {c.description && <p className="text-sm text-muted-foreground">{c.description}</p>}
-                  </div>
-                  <div className="flex gap-1">
-                    <Button variant="ghost" size="icon" onClick={() => openEdit(c)}>
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={() => handleDelete(c.id)}>
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <Droppable droppableId="categories">
+            {(provided) => (
+              <div className="space-y-2" ref={provided.innerRef} {...provided.droppableProps}>
+                {categories.map((c, i) => (
+                  <Draggable key={c.id} draggableId={c.id} index={i}>
+                    {(provided, snapshot) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        style={provided.draggableProps.style}
+                      >
+                        <Card className={`glass ${snapshot.isDragging ? 'ring-2 ring-primary shadow-lg' : ''}`}>
+                          <CardContent className="flex items-center gap-4 p-4">
+                            <div {...provided.dragHandleProps}>
+                              <GripVertical className="h-5 w-5 text-muted-foreground cursor-grab" />
+                            </div>
+                            <div className="flex-1">
+                              <h3 className="font-semibold">{c.icon ? `${c.icon} ` : ''}{c.name}</h3>
+                              {c.description && <p className="text-sm text-muted-foreground">{c.description}</p>}
+                            </div>
+                            <div className="flex gap-1">
+                              <Button variant="ghost" size="icon" onClick={() => openEdit(c)}>
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                              <Button variant="ghost" size="icon" onClick={() => handleDelete(c.id)}>
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
       )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
