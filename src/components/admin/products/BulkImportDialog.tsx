@@ -181,6 +181,15 @@ const BulkImportDialog = ({ open, onOpenChange, tenantId, categories, onImported
 
           <div
             onClick={() => fileRef.current?.click()}
+            onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); e.currentTarget.classList.add('border-primary', 'bg-muted/70'); }}
+            onDragLeave={(e) => { e.preventDefault(); e.stopPropagation(); e.currentTarget.classList.remove('border-primary', 'bg-muted/70'); }}
+            onDrop={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              e.currentTarget.classList.remove('border-primary', 'bg-muted/70');
+              const file = e.dataTransfer.files?.[0];
+              if (file) parseFile(file);
+            }}
             className="border-2 border-dashed border-border rounded-xl p-8 text-center cursor-pointer hover:border-primary/50 hover:bg-muted/50 transition-all"
           >
             <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
