@@ -69,20 +69,34 @@ const ProductFormDialog = ({ open, onOpenChange, tenantId, editing, categories, 
   }, [open, editing]);
 
   const loadMedia = async (productId: string) => {
-    const { data } = await supabase
-      .from('product_media' as any)
-      .select('*')
-      .eq('product_id', productId)
-      .order('sort_order');
-    if (data) {
-      setMedia((data as any[]).map((m: any) => ({
-        id: m.id,
-        url: m.url,
-        file_path: m.file_path || undefined,
-        type: m.type as 'image' | 'video' | 'video_360',
-        is_cover: m.is_cover ?? false,
-        sort_order: m.sort_order ?? 0,
-      })));
+    try {
+      const { data } = await supabase
+        .from('product_media' as any)
+        .select('*')
+        .eq('product_id', productId)
+        .order('sort_order');
+      if (data && (data as any[]).length > 0) {
+        setMedia((data as any[]).map((m: any) => ({
+          id: m.id,
+          url: m.url,
+          file_path: m.file_path || undefined,
+          type: m.type as 'image' | 'video' | 'video_360',
+          is_cover: m.is_cover ?? false,
+          sort_order: m.sort_order ?? 0,
+        })));
+        return;
+      }
+    } catch {
+      // product_media table may not exist yet
+    }
+    // Fallback: use existing image_url from the product
+    if (editing?.image_url) {
+      setMedia([{
+        url: editing.image_url,
+        type: 'image',
+        is_cover: true,
+        sort_order: 0,
+      }]);
     }
   };
 
