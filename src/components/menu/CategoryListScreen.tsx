@@ -19,7 +19,7 @@ const CategoryListScreen = ({ categories, onSelectCategory }: CategoryListScreen
 
   return (
     <div className="max-w-2xl mx-auto px-4 mt-6">
-      <h2 className="text-xl font-display font-bold text-foreground mb-4">Escolha uma categoria</h2>
+      <h2 className="text-xl font-display font-bold text-[hsl(220,14%,96%)] mb-4">Escolha uma categoria</h2>
       <div className="space-y-3">
         {topLevelCategories.map((cat, i) => (
           <motion.button
