@@ -1,9 +1,10 @@
 import { useState, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-import { Upload, FileSpreadsheet, CheckCircle2, AlertCircle, Download } from 'lucide-react';
+import { Upload, FileSpreadsheet, CheckCircle2, AlertCircle, Download, Info } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
@@ -31,12 +32,14 @@ const BulkImportDialog = ({ open, onOpenChange, tenantId, categories, onImported
   const [importing, setImporting] = useState(false);
   const [progress, setProgress] = useState(0);
   const [results, setResults] = useState<{ success: number; errors: string[] } | null>(null);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>('');
   const fileRef = useRef<HTMLInputElement>(null);
 
   const reset = () => {
     setRows([]);
     setProgress(0);
     setResults(null);
+    setSelectedCategoryId('');
   };
 
   const parseFile = (file: File) => {
@@ -82,15 +85,20 @@ const BulkImportDialog = ({ open, onOpenChange, tenantId, categories, onImported
         continue;
       }
 
-      const catName = String(row.categoria || '').trim().toLowerCase();
-      const category = categories.find(c => c.name.toLowerCase() === catName);
+      // Use selected category if set, otherwise try to match from CSV column
+      let categoryId: string | null = selectedCategoryId || null;
+      if (!categoryId) {
+        const catName = String(row.categoria || '').trim().toLowerCase();
+        const category = categories.find(c => c.name.toLowerCase() === catName);
+        categoryId = category?.id || null;
+      }
 
       const { error } = await supabase.from('products').insert({
         tenant_id: tenantId,
         name,
         description: String(row.descricao || '').trim() || null,
         price,
-        category_id: category?.id || null,
+        category_id: categoryId,
         is_available: row.disponivel?.toLowerCase() !== 'não' && row.disponivel?.toLowerCase() !== 'nao',
         is_featured: row.destaque?.toLowerCase() === 'sim',
         prep_time_min: parseInt(String(row.tempo_preparo || '30')) || 30,
@@ -138,6 +146,26 @@ const BulkImportDialog = ({ open, onOpenChange, tenantId, categories, onImported
           <Button variant="outline" size="sm" onClick={downloadTemplate} className="gap-2">
             <Download className="h-4 w-4" /> Baixar modelo CSV
           </Button>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground">Categoria dos produtos</label>
+            <Select value={selectedCategoryId} onValueChange={setSelectedCategoryId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione uma categoria (opcional)" />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((cat) => (
+                  <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <div className="flex items-start gap-2 p-3 rounded-lg bg-muted/50 border border-border">
+              <Info className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+              <p className="text-xs text-muted-foreground">
+                As categorias precisam ser criadas previamente no módulo de <strong>Categorias</strong> para aparecerem aqui. Caso não selecione nenhuma, os produtos serão importados sem categoria.
+              </p>
+            </div>
+          </div>
 
           <input
             ref={fileRef}
