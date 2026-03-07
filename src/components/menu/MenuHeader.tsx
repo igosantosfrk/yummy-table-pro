@@ -44,8 +44,8 @@ const MenuHeader = ({ tenant }: MenuHeaderProps) => {
             </div>
           )}
           <div className="pb-1">
-            <h1 className="text-2xl font-display font-bold text-foreground">{tenant.name}</h1>
-            <div className="flex items-center gap-3 mt-1 text-sm text-muted-foreground">
+            <h1 className="text-2xl font-display font-bold text-[hsl(220,14%,96%)]">{tenant.name}</h1>
+            <div className="flex items-center gap-3 mt-1 text-sm text-[hsl(220,10%,55%)]">
               {tenant.is_open ? (
                 <Badge className="bg-success text-success-foreground text-xs">Aberto</Badge>
               ) : (
