@@ -146,7 +146,7 @@ const PublicMenu = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen bg-[hsl(220,20%,7%)] text-[hsl(220,14%,96%)] pb-24">
       <MenuHeader tenant={tenant} />
 
       <div className="mt-6">
