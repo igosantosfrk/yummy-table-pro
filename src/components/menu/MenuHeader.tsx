@@ -37,9 +37,9 @@ const MenuHeader = ({ tenant }: MenuHeaderProps) => {
       <div className="relative -mt-16 px-4 sm:px-6 max-w-2xl mx-auto">
         <div className="flex items-end gap-4">
           {tenant.logo_url ? (
-            <img src={tenant.logo_url} alt="" className="w-20 h-20 rounded-2xl border-4 border-background object-cover shadow-lg" />
+            <img src={tenant.logo_url} alt="" className="w-20 h-20 rounded-2xl border-4 border-[hsl(220,20%,7%)] object-cover shadow-lg" />
           ) : (
-            <div className="w-20 h-20 rounded-2xl border-4 border-background gradient-primary flex items-center justify-center shadow-lg">
+            <div className="w-20 h-20 rounded-2xl border-4 border-[hsl(220,20%,7%)] gradient-primary flex items-center justify-center shadow-lg">
               <span className="text-3xl font-display font-bold text-primary-foreground">{tenant.name[0]}</span>
             </div>
           )}
