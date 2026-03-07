@@ -43,7 +43,7 @@ const SizeSelectionScreen = ({ parentCategory, subCategories, onSelectSubCategor
           >
             <div className="flex items-center gap-3">
               {sub.icon && <span className="text-2xl">{sub.icon}</span>}
-              <span className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
+              <span className="text-lg font-semibold text-[hsl(220,14%,96%)] group-hover:text-primary transition-colors">
                 {sub.name}
               </span>
             </div>
