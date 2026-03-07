@@ -127,10 +127,10 @@ const PublicMenu = () => {
 
   if (!tenant) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="flex min-h-screen items-center justify-center bg-[hsl(220,20%,7%)] text-[hsl(220,14%,96%)]">
         <div className="text-center">
           <h1 className="text-2xl font-display font-bold">Restaurante não encontrado</h1>
-          <p className="text-muted-foreground mt-2">Verifique o link e tente novamente</p>
+          <p className="text-[hsl(220,10%,55%)] mt-2">Verifique o link e tente novamente</p>
         </div>
       </div>
     );
