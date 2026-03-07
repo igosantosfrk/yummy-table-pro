@@ -32,12 +32,14 @@ const BulkImportDialog = ({ open, onOpenChange, tenantId, categories, onImported
   const [importing, setImporting] = useState(false);
   const [progress, setProgress] = useState(0);
   const [results, setResults] = useState<{ success: number; errors: string[] } | null>(null);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>('');
   const fileRef = useRef<HTMLInputElement>(null);
 
   const reset = () => {
     setRows([]);
     setProgress(0);
     setResults(null);
+    setSelectedCategoryId('');
   };
 
   const parseFile = (file: File) => {
