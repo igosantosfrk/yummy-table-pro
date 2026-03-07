@@ -22,6 +22,7 @@ export type Database = {
           id: string
           is_active: boolean | null
           name: string
+          parent_id: string | null
           sort_order: number | null
           tenant_id: string
           updated_at: string
@@ -33,6 +34,7 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           name: string
+          parent_id?: string | null
           sort_order?: number | null
           tenant_id: string
           updated_at?: string
@@ -44,11 +46,19 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           name?: string
+          parent_id?: string | null
           sort_order?: number | null
           tenant_id?: string
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "categories_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "categories_tenant_id_fkey"
             columns: ["tenant_id"]
