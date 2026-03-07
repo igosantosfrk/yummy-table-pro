@@ -19,7 +19,7 @@ const CategoryListScreen = ({ categories, onSelectCategory }: CategoryListScreen
 
   return (
     <div className="max-w-2xl mx-auto px-4 mt-6">
-      <h2 className="text-xl font-display font-bold text-foreground mb-4">Escolha uma categoria</h2>
+      <h2 className="text-xl font-display font-bold text-[hsl(220,14%,96%)] mb-4">Escolha uma categoria</h2>
       <div className="space-y-3">
         {topLevelCategories.map((cat, i) => (
           <motion.button
@@ -28,15 +28,15 @@ const CategoryListScreen = ({ categories, onSelectCategory }: CategoryListScreen
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05 }}
             onClick={() => onSelectCategory(cat)}
-            className="w-full flex items-center justify-between p-4 rounded-xl glass hover:shadow-glow-sm transition-all group text-left"
+            className="w-full flex items-center justify-between p-4 rounded-xl bg-[hsl(220,18%,12%)]/80 backdrop-blur-xl border border-[hsl(220,16%,18%)]/50 hover:shadow-glow-sm transition-all group text-left"
           >
             <div className="flex items-center gap-3">
               {cat.icon && <span className="text-2xl">{cat.icon}</span>}
-              <span className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
+              <span className="text-lg font-semibold text-[hsl(220,14%,96%)] group-hover:text-primary transition-colors">
                 {cat.name}
               </span>
             </div>
-            <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+            <ChevronRight className="h-5 w-5 text-[hsl(220,10%,55%)] group-hover:text-primary transition-colors" />
           </motion.button>
         ))}
       </div>

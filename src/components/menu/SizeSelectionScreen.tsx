@@ -20,16 +20,16 @@ const SizeSelectionScreen = ({ parentCategory, subCategories, onSelectSubCategor
     <div className="max-w-2xl mx-auto px-4 mt-6">
       <button
         onClick={onBack}
-        className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-4"
+        className="flex items-center gap-2 text-[hsl(220,10%,55%)] hover:text-[hsl(220,14%,96%)] transition-colors mb-4"
       >
         <ArrowLeft className="h-4 w-4" />
         <span className="text-sm font-medium">Voltar</span>
       </button>
 
-      <h2 className="text-xl font-display font-bold text-foreground mb-2">
+      <h2 className="text-xl font-display font-bold text-[hsl(220,14%,96%)] mb-2">
         {parentCategory.icon ? `${parentCategory.icon} ` : ''}{parentCategory.name}
       </h2>
-      <p className="text-sm text-muted-foreground mb-6">Escolha o tamanho</p>
+      <p className="text-sm text-[hsl(220,10%,55%)] mb-6">Escolha o tamanho</p>
 
       <div className="space-y-3">
         {subCategories.map((sub, i) => (
@@ -39,15 +39,15 @@ const SizeSelectionScreen = ({ parentCategory, subCategories, onSelectSubCategor
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05 }}
             onClick={() => onSelectSubCategory(sub)}
-            className="w-full flex items-center justify-between p-4 rounded-xl glass hover:shadow-glow-sm transition-all group text-left"
+            className="w-full flex items-center justify-between p-4 rounded-xl bg-[hsl(220,18%,12%)]/80 backdrop-blur-xl border border-[hsl(220,16%,18%)]/50 hover:shadow-glow-sm transition-all group text-left"
           >
             <div className="flex items-center gap-3">
               {sub.icon && <span className="text-2xl">{sub.icon}</span>}
-              <span className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
+              <span className="text-lg font-semibold text-[hsl(220,14%,96%)] group-hover:text-primary transition-colors">
                 {sub.name}
               </span>
             </div>
-            <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+            <ChevronRight className="h-5 w-5 text-[hsl(220,10%,55%)] group-hover:text-primary transition-colors" />
           </motion.button>
         ))}
       </div>

@@ -43,18 +43,18 @@ const ProductListScreen = ({ category, products, cart, onAddToCart, onUpdateQuan
     <div className="max-w-2xl mx-auto px-4 mt-6">
       <button
         onClick={onBack}
-        className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-4"
+        className="flex items-center gap-2 text-[hsl(220,10%,55%)] hover:text-[hsl(220,14%,96%)] transition-colors mb-4"
       >
         <ArrowLeft className="h-4 w-4" />
         <span className="text-sm font-medium">Voltar</span>
       </button>
 
-      <h2 className="text-xl font-display font-bold text-foreground mb-4">
+      <h2 className="text-xl font-display font-bold text-[hsl(220,14%,96%)] mb-4">
         {category.icon ? `${category.icon} ` : ''}{category.name}
       </h2>
 
       {categoryProducts.length === 0 ? (
-        <p className="text-muted-foreground text-sm">Nenhum produto disponível nesta categoria.</p>
+        <p className="text-[hsl(220,10%,55%)] text-sm">Nenhum produto disponível nesta categoria.</p>
       ) : (
         <div className="space-y-3">
           {categoryProducts.map((p, i) => {
@@ -65,20 +65,20 @@ const ProductListScreen = ({ category, products, cart, onAddToCart, onUpdateQuan
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
-                className="flex gap-4 p-3 rounded-xl glass hover:shadow-glow-sm transition-all cursor-pointer group"
+                className="flex gap-4 p-3 rounded-xl bg-[hsl(220,18%,12%)]/80 backdrop-blur-xl border border-[hsl(220,16%,18%)]/50 hover:shadow-glow-sm transition-all cursor-pointer group"
                 onClick={() => onAddToCart(p)}
               >
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">{p.name}</h3>
+                  <h3 className="font-semibold text-[hsl(220,14%,96%)] group-hover:text-primary transition-colors">{p.name}</h3>
                   {p.description && (
-                    <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{p.description}</p>
+                    <p className="text-sm text-[hsl(220,10%,55%)] line-clamp-2 mt-1">{p.description}</p>
                   )}
                   <div className="flex items-center gap-3 mt-2">
                     <span className="text-lg font-bold text-primary">
                       R$ {p.price.toFixed(2)}
                     </span>
                     {p.prep_time_min && (
-                      <span className="text-xs text-muted-foreground flex items-center gap-1">
+                      <span className="text-xs text-[hsl(220,10%,55%)] flex items-center gap-1">
                         <Clock className="h-3 w-3" /> {p.prep_time_min}min
                       </span>
                     )}

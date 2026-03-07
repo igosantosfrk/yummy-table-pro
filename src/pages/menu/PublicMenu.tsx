@@ -119,7 +119,7 @@ const PublicMenu = () => {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="flex min-h-screen items-center justify-center bg-[hsl(220,20%,7%)]">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
       </div>
     );
@@ -127,10 +127,10 @@ const PublicMenu = () => {
 
   if (!tenant) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="flex min-h-screen items-center justify-center bg-[hsl(220,20%,7%)] text-[hsl(220,14%,96%)]">
         <div className="text-center">
           <h1 className="text-2xl font-display font-bold">Restaurante não encontrado</h1>
-          <p className="text-muted-foreground mt-2">Verifique o link e tente novamente</p>
+          <p className="text-[hsl(220,10%,55%)] mt-2">Verifique o link e tente novamente</p>
         </div>
       </div>
     );
@@ -146,7 +146,7 @@ const PublicMenu = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen bg-[hsl(220,20%,7%)] text-[hsl(220,14%,96%)] pb-24">
       <MenuHeader tenant={tenant} />
 
       <div className="mt-6">

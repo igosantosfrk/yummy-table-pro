@@ -26,26 +26,26 @@ const MenuHeader = ({ tenant }: MenuHeaderProps) => {
       {tenant.banner_url ? (
         <div className="h-48 sm:h-64 overflow-hidden">
           <img src={tenant.banner_url} alt={tenant.name} className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[hsl(220,20%,7%)] via-[hsl(220,20%,7%)/0.4] to-transparent" />
         </div>
       ) : (
         <div className="h-48 sm:h-64 gradient-primary">
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[hsl(220,20%,7%)] via-transparent to-transparent" />
         </div>
       )}
 
       <div className="relative -mt-16 px-4 sm:px-6 max-w-2xl mx-auto">
         <div className="flex items-end gap-4">
           {tenant.logo_url ? (
-            <img src={tenant.logo_url} alt="" className="w-20 h-20 rounded-2xl border-4 border-background object-cover shadow-lg" />
+            <img src={tenant.logo_url} alt="" className="w-20 h-20 rounded-2xl border-4 border-[hsl(220,20%,7%)] object-cover shadow-lg" />
           ) : (
-            <div className="w-20 h-20 rounded-2xl border-4 border-background gradient-primary flex items-center justify-center shadow-lg">
+            <div className="w-20 h-20 rounded-2xl border-4 border-[hsl(220,20%,7%)] gradient-primary flex items-center justify-center shadow-lg">
               <span className="text-3xl font-display font-bold text-primary-foreground">{tenant.name[0]}</span>
             </div>
           )}
           <div className="pb-1">
-            <h1 className="text-2xl font-display font-bold text-foreground">{tenant.name}</h1>
-            <div className="flex items-center gap-3 mt-1 text-sm text-muted-foreground">
+            <h1 className="text-2xl font-display font-bold text-[hsl(220,14%,96%)]">{tenant.name}</h1>
+            <div className="flex items-center gap-3 mt-1 text-sm text-[hsl(220,10%,55%)]">
               {tenant.is_open ? (
                 <Badge className="bg-success text-success-foreground text-xs">Aberto</Badge>
               ) : (
@@ -60,7 +60,7 @@ const MenuHeader = ({ tenant }: MenuHeaderProps) => {
           </div>
         </div>
         {tenant.description && (
-          <p className="text-sm text-muted-foreground mt-3">{tenant.description}</p>
+          <p className="text-sm text-[hsl(220,10%,55%)] mt-3">{tenant.description}</p>
         )}
       </div>
     </div>
