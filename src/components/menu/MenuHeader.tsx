@@ -26,7 +26,7 @@ const MenuHeader = ({ tenant }: MenuHeaderProps) => {
       {tenant.banner_url ? (
         <div className="h-48 sm:h-64 overflow-hidden">
           <img src={tenant.banner_url} alt={tenant.name} className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[hsl(220,20%,7%)] via-[hsl(220,20%,7%)/0.4] to-transparent" />
         </div>
       ) : (
         <div className="h-48 sm:h-64 gradient-primary">
