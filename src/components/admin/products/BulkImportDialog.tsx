@@ -85,8 +85,13 @@ const BulkImportDialog = ({ open, onOpenChange, tenantId, categories, onImported
         continue;
       }
 
-      const catName = String(row.categoria || '').trim().toLowerCase();
-      const category = categories.find(c => c.name.toLowerCase() === catName);
+      // Use selected category if set, otherwise try to match from CSV column
+      let categoryId: string | null = selectedCategoryId || null;
+      if (!categoryId) {
+        const catName = String(row.categoria || '').trim().toLowerCase();
+        const category = categories.find(c => c.name.toLowerCase() === catName);
+        categoryId = category?.id || null;
+      }
 
       const { error } = await supabase.from('products').insert({
         tenant_id: tenantId,
