@@ -29,9 +29,7 @@ const MenuHeader = ({ tenant }: MenuHeaderProps) => {
           <div className="absolute inset-0 bg-gradient-to-t from-[hsl(220,20%,7%)] via-[hsl(220,20%,7%)/0.4] to-transparent" />
         </div>
       ) : (
-        <div className="h-48 sm:h-64 gradient-primary">
-          <div className="absolute inset-0 bg-gradient-to-t from-[hsl(220,20%,7%)] via-transparent to-transparent" />
-        </div>
+        <div className="h-32 sm:h-40 bg-[hsl(220,20%,7%)]" />
       )}
 
       <div className="relative -mt-16 px-4 sm:px-6 max-w-2xl mx-auto">

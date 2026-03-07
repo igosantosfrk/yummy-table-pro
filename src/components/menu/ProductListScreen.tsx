@@ -85,11 +85,11 @@ const ProductListScreen = ({ category, products, cart, onAddToCart, onUpdateQuan
                   </div>
                   {inCart && (
                     <div className="flex items-center gap-2 mt-2" onClick={e => e.stopPropagation()}>
-                      <Button size="icon" variant="outline" className="h-7 w-7" onClick={() => onUpdateQuantity(p.id, -1)}>
+                      <Button size="icon" variant="outline" className="h-7 w-7 border-[hsl(220,16%,25%)] bg-[hsl(220,18%,15%)] text-[hsl(220,14%,96%)]" onClick={() => onUpdateQuantity(p.id, -1)}>
                         <Minus className="h-3 w-3" />
                       </Button>
-                      <span className="text-sm font-bold w-6 text-center">{inCart.quantity}</span>
-                      <Button size="icon" variant="outline" className="h-7 w-7" onClick={() => onUpdateQuantity(p.id, 1)}>
+                      <span className="text-sm font-bold w-6 text-center text-[hsl(220,14%,96%)]">{inCart.quantity}</span>
+                      <Button size="icon" variant="outline" className="h-7 w-7 border-[hsl(220,16%,25%)] bg-[hsl(220,18%,15%)] text-[hsl(220,14%,96%)]" onClick={() => onUpdateQuantity(p.id, 1)}>
                         <Plus className="h-3 w-3" />
                       </Button>
                     </div>
