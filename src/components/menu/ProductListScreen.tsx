@@ -54,7 +54,7 @@ const ProductListScreen = ({ category, products, cart, onAddToCart, onUpdateQuan
       </h2>
 
       {categoryProducts.length === 0 ? (
-        <p className="text-muted-foreground text-sm">Nenhum produto disponível nesta categoria.</p>
+        <p className="text-[hsl(220,10%,55%)] text-sm">Nenhum produto disponível nesta categoria.</p>
       ) : (
         <div className="space-y-3">
           {categoryProducts.map((p, i) => {
