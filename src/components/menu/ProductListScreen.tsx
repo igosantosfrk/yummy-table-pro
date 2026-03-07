@@ -69,7 +69,7 @@ const ProductListScreen = ({ category, products, cart, onAddToCart, onUpdateQuan
                 onClick={() => onAddToCart(p)}
               >
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">{p.name}</h3>
+                  <h3 className="font-semibold text-[hsl(220,14%,96%)] group-hover:text-primary transition-colors">{p.name}</h3>
                   {p.description && (
                     <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{p.description}</p>
                   )}
