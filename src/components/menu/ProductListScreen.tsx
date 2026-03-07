@@ -78,7 +78,7 @@ const ProductListScreen = ({ category, products, cart, onAddToCart, onUpdateQuan
                       R$ {p.price.toFixed(2)}
                     </span>
                     {p.prep_time_min && (
-                      <span className="text-xs text-muted-foreground flex items-center gap-1">
+                      <span className="text-xs text-[hsl(220,10%,55%)] flex items-center gap-1">
                         <Clock className="h-3 w-3" /> {p.prep_time_min}min
                       </span>
                     )}

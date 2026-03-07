@@ -60,7 +60,7 @@ const MenuHeader = ({ tenant }: MenuHeaderProps) => {
           </div>
         </div>
         {tenant.description && (
-          <p className="text-sm text-muted-foreground mt-3">{tenant.description}</p>
+          <p className="text-sm text-[hsl(220,10%,55%)] mt-3">{tenant.description}</p>
         )}
       </div>
     </div>

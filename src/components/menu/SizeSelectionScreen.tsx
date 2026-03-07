@@ -47,7 +47,7 @@ const SizeSelectionScreen = ({ parentCategory, subCategories, onSelectSubCategor
                 {sub.name}
               </span>
             </div>
-            <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+            <ChevronRight className="h-5 w-5 text-[hsl(220,10%,55%)] group-hover:text-primary transition-colors" />
           </motion.button>
         ))}
       </div>
