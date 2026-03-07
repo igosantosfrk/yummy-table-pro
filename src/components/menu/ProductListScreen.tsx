@@ -65,7 +65,7 @@ const ProductListScreen = ({ category, products, cart, onAddToCart, onUpdateQuan
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
-                className="flex gap-4 p-3 rounded-xl glass hover:shadow-glow-sm transition-all cursor-pointer group"
+                className="flex gap-4 p-3 rounded-xl bg-[hsl(220,18%,12%)]/80 backdrop-blur-xl border border-[hsl(220,16%,18%)]/50 hover:shadow-glow-sm transition-all cursor-pointer group"
                 onClick={() => onAddToCart(p)}
               >
                 <div className="flex-1 min-w-0">
