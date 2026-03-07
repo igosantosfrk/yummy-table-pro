@@ -28,7 +28,7 @@ const CategoryListScreen = ({ categories, onSelectCategory }: CategoryListScreen
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05 }}
             onClick={() => onSelectCategory(cat)}
-            className="w-full flex items-center justify-between p-4 rounded-xl glass hover:shadow-glow-sm transition-all group text-left"
+            className="w-full flex items-center justify-between p-4 rounded-xl bg-[hsl(220,18%,12%)]/80 backdrop-blur-xl border border-[hsl(220,16%,18%)]/50 hover:shadow-glow-sm transition-all group text-left"
           >
             <div className="flex items-center gap-3">
               {cat.icon && <span className="text-2xl">{cat.icon}</span>}
