@@ -98,7 +98,7 @@ const BulkImportDialog = ({ open, onOpenChange, tenantId, categories, onImported
         name,
         description: String(row.descricao || '').trim() || null,
         price,
-        category_id: category?.id || null,
+        category_id: categoryId,
         is_available: row.disponivel?.toLowerCase() !== 'não' && row.disponivel?.toLowerCase() !== 'nao',
         is_featured: row.destaque?.toLowerCase() === 'sim',
         prep_time_min: parseInt(String(row.tempo_preparo || '30')) || 30,
