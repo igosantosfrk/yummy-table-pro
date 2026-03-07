@@ -8,6 +8,30 @@ import { Switch } from '@/components/ui/switch';
 import { toast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 import { Plus, Pencil, Trash2, Package, Search, FileSpreadsheet, ExternalLink } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
 import ProductFormDialog from '@/components/admin/products/ProductFormDialog';
 import BulkImportDialog from '@/components/admin/products/BulkImportDialog';
 
@@ -38,6 +62,12 @@ const Products = () => {
   const [editing, setEditing] = useState<Product | null>(null);
   const [activeTenantId, setActiveTenantId] = useState<string | null>(null);
   const [tenantSlug, setTenantSlug] = useState<string | null>(null);
+
+  // Bulk delete state
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>('');
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   // Resolve tenant and slug
   useEffect(() => {
@@ -84,6 +114,28 @@ const Products = () => {
     fetchProducts();
   };
 
+  const handleBulkDeleteConfirm = async () => {
+    if (!selectedCategoryId || !activeTenantId) return;
+    setDeleting(true);
+    const { error } = await supabase
+      .from('products')
+      .delete()
+      .eq('tenant_id', activeTenantId)
+      .eq('category_id', selectedCategoryId);
+    setDeleting(false);
+    setConfirmDeleteOpen(false);
+    setBulkDeleteOpen(false);
+    setSelectedCategoryId('');
+    if (error) {
+      toast({ title: 'Erro ao excluir produtos', description: error.message, variant: 'destructive' });
+    } else {
+      toast({ title: 'Produtos excluídos com sucesso!' });
+      fetchProducts();
+    }
+  };
+
+  const selectedCategoryName = categories.find(c => c.id === selectedCategoryId)?.name || '';
+
   const filtered = products.filter(p => p.name.toLowerCase().includes(search.toLowerCase()));
 
   if (!activeTenantId) {
@@ -102,6 +154,13 @@ const Products = () => {
           <p className="text-muted-foreground">{products.length} produtos cadastrados</p>
         </div>
         <div className="flex flex-wrap gap-2">
+          <Button
+            onClick={() => setBulkDeleteOpen(true)}
+            variant="destructive"
+            className="gap-2"
+          >
+            <Trash2 className="h-4 w-4" /> Excluir todos os produtos
+          </Button>
           {tenantSlug && (
             <Button
               onClick={() => window.open(`/${tenantSlug}`, '_blank')}
@@ -185,6 +244,58 @@ const Products = () => {
         categories={categories}
         onImported={fetchProducts}
       />
+
+      {/* Dialog para selecionar categoria */}
+      <Dialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Excluir todos os produtos de uma categoria</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">Selecione a categoria da qual deseja excluir todos os produtos:</p>
+          <Select value={selectedCategoryId} onValueChange={setSelectedCategoryId}>
+            <SelectTrigger>
+              <SelectValue placeholder="Selecione uma categoria" />
+            </SelectTrigger>
+            <SelectContent>
+              {categories.map(c => (
+                <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setBulkDeleteOpen(false); setSelectedCategoryId(''); }}>Cancelar</Button>
+            <Button
+              variant="destructive"
+              disabled={!selectedCategoryId}
+              onClick={() => { setBulkDeleteOpen(false); setConfirmDeleteOpen(true); }}
+            >
+              Prosseguir
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Confirmação final */}
+      <AlertDialog open={confirmDeleteOpen} onOpenChange={setConfirmDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Todos os produtos da categoria <strong>"{selectedCategoryName}"</strong> serão excluídos permanentemente. Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => { setConfirmDeleteOpen(false); setSelectedCategoryId(''); }}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleBulkDeleteConfirm}
+              disabled={deleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting ? 'Excluindo...' : 'Sim, excluir tudo'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
