@@ -44,7 +44,7 @@ const Orders = () => {
       .from('orders')
       .select('*')
       .eq('tenant_id', tenantId)
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: true });
     setOrders(data || []);
   };
 
