@@ -131,21 +131,15 @@ const Orders = () => {
                             </span>
                             <Badge variant="outline" className="text-xs">{order.payment_method}</Badge>
                           </div>
-                          {/* Status actions */}
                           <div className="flex gap-1">
-                            {status === 'new' && (
-                              <Button size="sm" className="w-full text-xs" onClick={() => updateStatus(order.id, 'preparing')}>
-                                Preparar
-                              </Button>
-                            )}
                             {status === 'preparing' && (
                               <Button size="sm" className="w-full text-xs" onClick={() => updateStatus(order.id, 'out_for_delivery')}>
-                                Saiu p/ Entrega
+                                Aguardando Entrega
                               </Button>
                             )}
                             {status === 'out_for_delivery' && (
                               <Button size="sm" className="w-full text-xs" onClick={() => updateStatus(order.id, 'completed')}>
-                                Finalizar
+                                Entregue
                               </Button>
                             )}
                           </div>
