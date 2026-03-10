@@ -94,7 +94,7 @@ const Orders = () => {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid lg:grid-cols-4 gap-4">
+        <div className="grid lg:grid-cols-3 gap-4">
           {columns.map(status => {
             const config = statusConfig[status];
             const columnOrders = orders.filter(o => o.status === status);
