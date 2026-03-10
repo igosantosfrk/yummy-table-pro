@@ -28,11 +28,11 @@ const statusConfig: Record<OrderStatus, { label: string; icon: React.ElementType
   new: { label: 'Novo', icon: ShoppingBag, color: 'bg-info text-info-foreground' },
   preparing: { label: 'Em Preparo', icon: ChefHat, color: 'bg-warning text-warning-foreground' },
   out_for_delivery: { label: 'Saiu p/ Entrega', icon: Truck, color: 'bg-primary text-primary-foreground' },
-  completed: { label: 'Finalizado', icon: CheckCircle, color: 'bg-success text-success-foreground' },
+  completed: { label: 'Entregue', icon: CheckCircle, color: 'bg-success text-success-foreground' },
   cancelled: { label: 'Cancelado', icon: XCircle, color: 'bg-destructive text-destructive-foreground' },
 };
 
-const columns: OrderStatus[] = ['new', 'preparing', 'out_for_delivery', 'completed'];
+const columns: OrderStatus[] = ['preparing', 'out_for_delivery', 'completed'];
 
 const Orders = () => {
   const { tenantId } = useAuth();
