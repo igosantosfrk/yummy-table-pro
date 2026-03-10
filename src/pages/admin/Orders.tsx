@@ -28,11 +28,11 @@ const statusConfig: Record<OrderStatus, { label: string; icon: React.ElementType
   new: { label: 'Novo', icon: ShoppingBag, color: 'bg-info text-info-foreground' },
   preparing: { label: 'Em Preparo', icon: ChefHat, color: 'bg-warning text-warning-foreground' },
   out_for_delivery: { label: 'Saiu p/ Entrega', icon: Truck, color: 'bg-primary text-primary-foreground' },
-  completed: { label: 'Finalizado', icon: CheckCircle, color: 'bg-success text-success-foreground' },
+  completed: { label: 'Entregue', icon: CheckCircle, color: 'bg-success text-success-foreground' },
   cancelled: { label: 'Cancelado', icon: XCircle, color: 'bg-destructive text-destructive-foreground' },
 };
 
-const columns: OrderStatus[] = ['new', 'preparing', 'out_for_delivery', 'completed'];
+const columns: OrderStatus[] = ['preparing', 'out_for_delivery', 'completed'];
 
 const Orders = () => {
   const { tenantId } = useAuth();
@@ -44,7 +44,7 @@ const Orders = () => {
       .from('orders')
       .select('*')
       .eq('tenant_id', tenantId)
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: true });
     setOrders(data || []);
   };
 
@@ -94,7 +94,7 @@ const Orders = () => {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid lg:grid-cols-4 gap-4">
+        <div className="grid lg:grid-cols-3 gap-4">
           {columns.map(status => {
             const config = statusConfig[status];
             const columnOrders = orders.filter(o => o.status === status);
@@ -131,21 +131,15 @@ const Orders = () => {
                             </span>
                             <Badge variant="outline" className="text-xs">{order.payment_method}</Badge>
                           </div>
-                          {/* Status actions */}
                           <div className="flex gap-1">
-                            {status === 'new' && (
-                              <Button size="sm" className="w-full text-xs" onClick={() => updateStatus(order.id, 'preparing')}>
-                                Preparar
-                              </Button>
-                            )}
                             {status === 'preparing' && (
                               <Button size="sm" className="w-full text-xs" onClick={() => updateStatus(order.id, 'out_for_delivery')}>
-                                Saiu p/ Entrega
+                                Aguardando Entrega
                               </Button>
                             )}
                             {status === 'out_for_delivery' && (
                               <Button size="sm" className="w-full text-xs" onClick={() => updateStatus(order.id, 'completed')}>
-                                Finalizar
+                                Entregue
                               </Button>
                             )}
                           </div>
