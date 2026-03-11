@@ -147,6 +147,71 @@ export type Database = {
           },
         ]
       }
+      menu_page_views: {
+        Row: {
+          created_at: string
+          id: string
+          ip_address: string | null
+          page_ref_id: string | null
+          page_ref_name: string | null
+          page_type: string
+          referrer: string | null
+          session_id: string
+          tenant_id: string
+          user_agent: string | null
+          utm_ad_link: string | null
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          utm_term: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          page_ref_id?: string | null
+          page_ref_name?: string | null
+          page_type: string
+          referrer?: string | null
+          session_id: string
+          tenant_id: string
+          user_agent?: string | null
+          utm_ad_link?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          page_ref_id?: string | null
+          page_ref_name?: string | null
+          page_type?: string
+          referrer?: string | null
+          session_id?: string
+          tenant_id?: string
+          user_agent?: string | null
+          utm_ad_link?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "menu_page_views_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_items: {
         Row: {
           addons: Json | null
@@ -233,12 +298,19 @@ export type Database = {
           order_number: number
           payment_method: Database["public"]["Enums"]["payment_method"]
           payment_status: Database["public"]["Enums"]["payment_status"]
+          session_id: string | null
           status: Database["public"]["Enums"]["order_status"]
           stripe_payment_intent_id: string | null
           subtotal: number
           tenant_id: string
           total: number
           updated_at: string
+          utm_ad_link: string | null
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          utm_term: string | null
         }
         Insert: {
           cancellation_reason?: string | null
@@ -261,12 +333,19 @@ export type Database = {
           order_number?: number
           payment_method?: Database["public"]["Enums"]["payment_method"]
           payment_status?: Database["public"]["Enums"]["payment_status"]
+          session_id?: string | null
           status?: Database["public"]["Enums"]["order_status"]
           stripe_payment_intent_id?: string | null
           subtotal?: number
           tenant_id: string
           total?: number
           updated_at?: string
+          utm_ad_link?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
         }
         Update: {
           cancellation_reason?: string | null
@@ -289,12 +368,19 @@ export type Database = {
           order_number?: number
           payment_method?: Database["public"]["Enums"]["payment_method"]
           payment_status?: Database["public"]["Enums"]["payment_status"]
+          session_id?: string | null
           status?: Database["public"]["Enums"]["order_status"]
           stripe_payment_intent_id?: string | null
           subtotal?: number
           tenant_id?: string
           total?: number
           updated_at?: string
+          utm_ad_link?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
         }
         Relationships: [
           {
