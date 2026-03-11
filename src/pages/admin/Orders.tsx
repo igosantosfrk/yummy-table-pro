@@ -17,9 +17,11 @@ import OrderListView from '@/components/admin/orders/OrderListView';
 type ViewMode = 'kanban' | 'list';
 
 const columnIcons: Record<string, React.ElementType> = {
+  new: Sparkles,
   preparing: ChefHat,
   out_for_delivery: Truck,
   completed: CheckCircle,
+  cancelled: XCircle,
 };
 
 const Orders = () => {
