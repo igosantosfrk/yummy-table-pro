@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { ShoppingBag, LayoutGrid, List, ChefHat, Truck, CheckCircle, XCircle, Clock, Sparkles } from 'lucide-react';
+import { DragDropContext, Droppable, Draggable, type DropResult } from '@hello-pangea/dnd';
 import DateRangeFilter from '@/components/admin/DateRangeFilter';
 import { useDateRange } from '@/hooks/useDateRange';
 import { Order, OrderStatus, statusConfig, kanbanColumns } from '@/components/admin/orders/types';
@@ -68,6 +69,17 @@ const Orders = () => {
     await supabase.from('orders').update(updateData).eq('id', orderId);
     fetchOrders();
   };
+
+  const handleDragEnd = useCallback((result: DropResult) => {
+    const { draggableId, destination } = result;
+    if (!destination) return;
+    const newStatus = destination.droppableId as OrderStatus;
+    const order = orders.find(o => o.id === draggableId);
+    if (!order || order.status === newStatus) return;
+    // Optimistic update
+    setOrders(prev => prev.map(o => o.id === draggableId ? { ...o, status: newStatus } : o));
+    updateStatus(draggableId, newStatus);
+  }, [orders]);
 
   const openDetail = (order: Order) => {
     setSelectedOrder(order);
@@ -171,44 +183,65 @@ const Orders = () => {
           </CardContent>
         </Card>
       ) : viewMode === 'kanban' ? (
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-          {kanbanColumns.map(status => {
-            const config = statusConfig[status];
-            const Icon = columnIcons[status] || Clock;
-            const columnOrders = (statusFilter === 'all' || statusFilter === status)
-              ? orders.filter(o => o.status === status)
-              : [];
-            return (
-              <div key={status} className="space-y-3">
-                {/* Column Header */}
-                <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border ${config.bgClass}`}>
-                  <Icon className={`h-4 w-4 ${config.color}`} />
-                  <span className={`font-semibold text-sm ${config.color}`}>{config.label}</span>
-                  <Badge variant="secondary" className="ml-auto h-5 min-w-[20px] justify-center text-[10px] bg-background/50">
-                    {columnOrders.length}
-                  </Badge>
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+            {kanbanColumns.map(status => {
+              const config = statusConfig[status];
+              const Icon = columnIcons[status] || Clock;
+              const columnOrders = (statusFilter === 'all' || statusFilter === status)
+                ? orders.filter(o => o.status === status)
+                : [];
+              return (
+                <div key={status} className="space-y-3">
+                  {/* Column Header */}
+                  <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border ${config.bgClass}`}>
+                    <Icon className={`h-4 w-4 ${config.color}`} />
+                    <span className={`font-semibold text-sm ${config.color}`}>{config.label}</span>
+                    <Badge variant="secondary" className="ml-auto h-5 min-w-[20px] justify-center text-[10px] bg-background/50">
+                      {columnOrders.length}
+                    </Badge>
+                  </div>
+                  {/* Droppable Column */}
+                  <Droppable droppableId={status}>
+                    {(provided, snapshot) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                        className={`space-y-2 min-h-[100px] rounded-xl p-1 transition-colors ${snapshot.isDraggingOver ? 'bg-primary/5 ring-1 ring-primary/20' : ''}`}
+                      >
+                        {columnOrders.map((order, i) => (
+                          <Draggable key={order.id} draggableId={order.id} index={i}>
+                            {(dragProvided, dragSnapshot) => (
+                              <div
+                                ref={dragProvided.innerRef}
+                                {...dragProvided.draggableProps}
+                                {...dragProvided.dragHandleProps}
+                                className={`${dragSnapshot.isDragging ? 'opacity-90 rotate-1 scale-105' : ''} transition-transform`}
+                              >
+                                <OrderCard
+                                  order={order}
+                                  index={0}
+                                  onStatusChange={updateStatus}
+                                  onOpenDetail={openDetail}
+                                />
+                              </div>
+                            )}
+                          </Draggable>
+                        ))}
+                        {provided.placeholder}
+                        {columnOrders.length === 0 && !snapshot.isDraggingOver && (
+                          <div className="flex items-center justify-center h-24 text-xs text-muted-foreground border border-dashed border-border/20 rounded-xl">
+                            Nenhum pedido
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </Droppable>
                 </div>
-                {/* Cards */}
-                <div className="space-y-2 min-h-[100px]">
-                  {columnOrders.map((order, i) => (
-                    <OrderCard
-                      key={order.id}
-                      order={order}
-                      index={i}
-                      onStatusChange={updateStatus}
-                      onOpenDetail={openDetail}
-                    />
-                  ))}
-                  {columnOrders.length === 0 && (
-                    <div className="flex items-center justify-center h-24 text-xs text-muted-foreground border border-dashed border-border/20 rounded-xl">
-                      Nenhum pedido
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        </DragDropContext>
       ) : (
         <Card className="glass border-border/30">
           <CardContent className="p-0">
