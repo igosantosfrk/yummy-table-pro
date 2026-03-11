@@ -651,6 +651,10 @@ const Customers = () => {
                       <Input value={editEmail} onChange={(e) => setEditEmail(e.target.value)} placeholder="email@exemplo.com" className="mt-1 bg-muted/20 border-border/20" />
                     </div>
                     <div>
+                      <Label className="text-xs text-muted-foreground flex items-center gap-1"><Cake className="h-3 w-3" /> Data de Aniversário</Label>
+                      <Input type="date" value={editBirthday} onChange={(e) => setEditBirthday(e.target.value)} className="mt-1 bg-muted/20 border-border/20" />
+                    </div>
+                    <div>
                       <Label className="text-xs text-muted-foreground flex items-center gap-1"><Tag className="h-3 w-3" /> Tags</Label>
                       <Input value={editTags} onChange={(e) => setEditTags(e.target.value)} placeholder="vip, frequente" className="mt-1 bg-muted/20 border-border/20" />
                     </div>
