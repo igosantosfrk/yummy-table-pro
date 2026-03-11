@@ -18,6 +18,7 @@ import {
 import TrackingLinksTab from '@/components/admin/marketing/TrackingLinksTab';
 import CouponsTab from '@/components/admin/marketing/CouponsTab';
 import LoyaltyTab from '@/components/admin/marketing/LoyaltyTab';
+import WhatsAppAutomationTab from '@/components/admin/marketing/WhatsAppAutomationTab';
 
 interface Campaign {
   id: string;
