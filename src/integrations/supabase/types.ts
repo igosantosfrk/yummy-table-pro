@@ -629,6 +629,8 @@ export type Database = {
           state: string | null
           status: Database["public"]["Enums"]["tenant_status"]
           stripe_customer_id: string | null
+          stripe_publishable_key: string | null
+          stripe_secret_key: string | null
           stripe_subscription_id: string | null
           updated_at: string
           zip_code: string | null
@@ -657,6 +659,8 @@ export type Database = {
           state?: string | null
           status?: Database["public"]["Enums"]["tenant_status"]
           stripe_customer_id?: string | null
+          stripe_publishable_key?: string | null
+          stripe_secret_key?: string | null
           stripe_subscription_id?: string | null
           updated_at?: string
           zip_code?: string | null
@@ -685,6 +689,8 @@ export type Database = {
           state?: string | null
           status?: Database["public"]["Enums"]["tenant_status"]
           stripe_customer_id?: string | null
+          stripe_publishable_key?: string | null
+          stripe_secret_key?: string | null
           stripe_subscription_id?: string | null
           updated_at?: string
           zip_code?: string | null
