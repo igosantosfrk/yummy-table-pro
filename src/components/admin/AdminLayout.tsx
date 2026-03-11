@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard, Package, FolderOpen, ShoppingBag, Truck, Settings,
   MessageSquare, CreditCard, LogOut, Menu, X, UtensilsCrossed, ChevronRight,
-  Shield
+  Shield, Megaphone
 } from 'lucide-react';
 
 const menuItems = [
