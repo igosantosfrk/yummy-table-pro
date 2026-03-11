@@ -13,8 +13,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import {
   DollarSign, TrendingUp, Target, ShoppingCart, RefreshCw, Settings2,
-  Eye, MousePointer, ArrowUpRight, ArrowDownRight, Loader2, Plug, BarChart3
+  Eye, MousePointer, ArrowUpRight, ArrowDownRight, Loader2, Plug, BarChart3, Link2
 } from 'lucide-react';
+import TrackingLinksTab from '@/components/admin/marketing/TrackingLinksTab';
 
 interface Campaign {
   id: string;
@@ -213,6 +214,10 @@ const Marketing = () => {
             <TabsTrigger value="settings" className="gap-2">
               <Settings2 className="h-4 w-4" />
               Conexões
+            </TabsTrigger>
+            <TabsTrigger value="links" className="gap-2">
+              <Link2 className="h-4 w-4" />
+              Links
             </TabsTrigger>
           </TabsList>
 
@@ -493,6 +498,11 @@ const Marketing = () => {
               </Card>
             </>
           )}
+        </TabsContent>
+
+        {/* TRACKING LINKS TAB */}
+        <TabsContent value="links">
+          <TrackingLinksTab tenantId={tenantId} />
         </TabsContent>
       </Tabs>
     </div>
