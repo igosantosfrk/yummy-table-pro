@@ -9,14 +9,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { UtmParams } from '@/hooks/useMenuTracking';
 
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-}
-
 interface CartItem {
-  product: Product;
+  product: { id: string; name: string; price: number; [key: string]: any };
   quantity: number;
   notes?: string;
 }
