@@ -27,7 +27,7 @@ interface CheckoutScreenProps {
   tenantSlug: string;
   deliveryFee: number | null;
   sessionId: string;
-  utmParams: Record<string, string>;
+  utmParams: UtmParams;
   onBack: () => void;
   onOrderComplete: (orderNumber: number) => void;
 }
