@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
 import { toast } from 'sonner';
 import { Plus, Copy, QrCode, Trash2, ExternalLink, Link2, Eye, ShoppingCart, DollarSign, TrendingUp } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
@@ -31,30 +31,6 @@ interface LinkInsights {
   revenue: number;
   conversion: number;
 }
-
-const sourcePresets = [
-  { label: 'Facebook', value: 'facebook' },
-  { label: 'Instagram', value: 'instagram' },
-  { label: 'Google', value: 'google' },
-  { label: 'Google Meu Negócio', value: 'google_meu_negocio' },
-  { label: 'QR Code', value: 'qrcode' },
-  { label: 'WhatsApp', value: 'whatsapp' },
-  { label: 'TikTok', value: 'tiktok' },
-  { label: 'Email', value: 'email' },
-  { label: 'Panfleto', value: 'panfleto' },
-  { label: 'Outro', value: 'outro' },
-];
-
-const mediumPresets = [
-  { label: 'CPC (Pago)', value: 'cpc' },
-  { label: 'CPM', value: 'cpm' },
-  { label: 'Orgânico', value: 'organic' },
-  { label: 'Social', value: 'social' },
-  { label: 'QR Code', value: 'qrcode' },
-  { label: 'Email', value: 'email' },
-  { label: 'Referência', value: 'referral' },
-  { label: 'Offline', value: 'offline' },
-];
 
 interface Props {
   tenantId: string | null;
@@ -301,21 +277,11 @@ export default function TrackingLinksTab({ tenantId }: Props) {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label>Fonte (utm_source) *</Label>
-                  <Select value={utmSource} onValueChange={setUtmSource}>
-                    <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
-                    <SelectContent>
-                      {sourcePresets.map(s => (<SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>))}
-                    </SelectContent>
-                  </Select>
+                  <Input value={utmSource} onChange={e => setUtmSource(e.target.value)} placeholder="Ex: google, instagram, qrcode" />
                 </div>
                 <div>
                   <Label>Meio (utm_medium)</Label>
-                  <Select value={utmMedium} onValueChange={setUtmMedium}>
-                    <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
-                    <SelectContent>
-                      {mediumPresets.map(s => (<SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>))}
-                    </SelectContent>
-                  </Select>
+                  <Input value={utmMedium} onChange={e => setUtmMedium(e.target.value)} placeholder="Ex: cpc, organic, qrcode" />
                 </div>
               </div>
               <div>
