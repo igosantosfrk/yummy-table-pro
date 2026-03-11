@@ -64,6 +64,11 @@ export default function OrderCard({ order, index, onStatusChange, onOpenDetail }
 
           {/* Actions */}
           <div className="flex gap-1.5" onClick={(e) => e.stopPropagation()}>
+            {order.status === 'new' && (
+              <Button size="sm" className="w-full text-[11px] h-7 gradient-primary" onClick={() => onStatusChange(order.id, 'preparing')}>
+                Aceitar Pedido
+              </Button>
+            )}
             {order.status === 'preparing' && (
               <Button size="sm" className="w-full text-[11px] h-7 gradient-primary" onClick={() => onStatusChange(order.id, 'out_for_delivery')}>
                 Saiu p/ Entrega
@@ -74,7 +79,7 @@ export default function OrderCard({ order, index, onStatusChange, onOpenDetail }
                 Entregue ✓
               </Button>
             )}
-            {(order.status === 'preparing' || order.status === 'out_for_delivery') && (
+            {(order.status === 'new' || order.status === 'preparing' || order.status === 'out_for_delivery') && (
               <Button size="sm" variant="ghost" className="text-[11px] h-7 text-red-400 hover:text-red-300 hover:bg-red-500/10 px-2" onClick={() => onStatusChange(order.id, 'cancelled')}>
                 ✕
               </Button>
