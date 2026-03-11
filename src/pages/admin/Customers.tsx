@@ -17,7 +17,7 @@ import {
   DollarSign, Calendar, TrendingUp, Star, Save, Tag, ArrowUpDown,
   ChevronUp, ChevronDown, Award, Gift, Globe, ExternalLink, CreditCard,
   Truck, Clock, RotateCcw, AlertTriangle, MessageSquare, Ticket,
-  Send, Brain, Loader2, Plus, Trash2, Sparkles, X
+  Send, Brain, Loader2, Plus, Trash2, Sparkles, X, Cake
 } from 'lucide-react';
 import DateRangeFilter from '@/components/admin/DateRangeFilter';
 import { useDateRange } from '@/hooks/useDateRange';
