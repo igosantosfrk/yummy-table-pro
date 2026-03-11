@@ -230,6 +230,10 @@ const Marketing = () => {
               <Crown className="h-4 w-4" />
               Fidelidade
             </TabsTrigger>
+            <TabsTrigger value="whatsapp" className="gap-2">
+              <MessageSquare className="h-4 w-4" />
+              Automação
+            </TabsTrigger>
           </TabsList>
 
           {tab === 'overview' && hasAccounts && (
