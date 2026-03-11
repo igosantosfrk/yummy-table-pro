@@ -42,6 +42,7 @@ const App = () => (
               <Route path="orders" element={<Orders />} />
               <Route path="delivery" element={<Delivery />} />
               <Route path="payments" element={<Payments />} />
+              <Route path="marketing" element={<Marketing />} />
               <Route path="whatsapp" element={<WhatsApp />} />
               <Route path="settings" element={<AdminSettings />} />
               <Route path="super" element={

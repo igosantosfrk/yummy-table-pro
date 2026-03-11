@@ -17,6 +17,7 @@ const menuItems = [
   { path: '/admin/categories', label: 'Categorias', icon: FolderOpen },
   { path: '/admin/delivery', label: 'Delivery', icon: Truck },
   { path: '/admin/payments', label: 'Financeiro', icon: CreditCard },
+  { path: '/admin/marketing', label: 'Marketing', icon: Megaphone },
   { path: '/admin/whatsapp', label: 'WhatsApp', icon: MessageSquare },
   { path: '/admin/settings', label: 'Configurações', icon: Settings },
 ];
