@@ -193,6 +193,16 @@ const Marketing = () => {
 
   return (
     <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <h1 className="text-2xl font-display font-bold">Marketing</h1>
+        <DateRangeFilter
+          preset={preset}
+          onPresetChange={setPreset}
+          customRange={customRange}
+          onCustomRangeChange={setCustomRange}
+        />
+      </div>
+
       <Tabs value={tab} onValueChange={setTab}>
         <div className="flex items-center justify-between">
           <TabsList>
