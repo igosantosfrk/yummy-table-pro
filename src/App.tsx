@@ -16,6 +16,7 @@ import Delivery from "@/pages/admin/Delivery";
 import Payments from "@/pages/admin/Payments";
 import WhatsApp from "@/pages/admin/WhatsApp";
 import AdminSettings from "@/pages/admin/AdminSettings";
+import Marketing from "@/pages/admin/Marketing";
 import PublicMenu from "@/pages/menu/PublicMenu";
 import NotFound from "./pages/NotFound";
 
@@ -41,6 +42,7 @@ const App = () => (
               <Route path="orders" element={<Orders />} />
               <Route path="delivery" element={<Delivery />} />
               <Route path="payments" element={<Payments />} />
+              <Route path="marketing" element={<Marketing />} />
               <Route path="whatsapp" element={<WhatsApp />} />
               <Route path="settings" element={<AdminSettings />} />
               <Route path="super" element={
