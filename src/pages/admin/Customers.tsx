@@ -95,6 +95,7 @@ const Customers = () => {
   const [editNotes, setEditNotes] = useState('');
   const [editEmail, setEditEmail] = useState('');
   const [editTags, setEditTags] = useState('');
+  const [editBirthday, setEditBirthday] = useState('');
   const [saving, setSaving] = useState(false);
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
 
