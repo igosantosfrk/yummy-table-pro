@@ -107,6 +107,7 @@ const PublicMenu = () => {
   };
 
   const addToCart = (product: Product) => {
+    trackPageView('add_to_cart', product.id, product.name);
     setCart(prev => {
       const existing = prev.find(i => i.product.id === product.id);
       if (existing) return prev.map(i => i.product.id === product.id ? { ...i, quantity: i.quantity + 1 } : i);
