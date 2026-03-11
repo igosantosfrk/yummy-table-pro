@@ -277,21 +277,11 @@ export default function TrackingLinksTab({ tenantId }: Props) {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label>Fonte (utm_source) *</Label>
-                  <Select value={utmSource} onValueChange={setUtmSource}>
-                    <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
-                    <SelectContent>
-                      {sourcePresets.map(s => (<SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>))}
-                    </SelectContent>
-                  </Select>
+                  <Input value={utmSource} onChange={e => setUtmSource(e.target.value)} placeholder="Ex: google, instagram, qrcode" />
                 </div>
                 <div>
                   <Label>Meio (utm_medium)</Label>
-                  <Select value={utmMedium} onValueChange={setUtmMedium}>
-                    <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
-                    <SelectContent>
-                      {mediumPresets.map(s => (<SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>))}
-                    </SelectContent>
-                  </Select>
+                  <Input value={utmMedium} onChange={e => setUtmMedium(e.target.value)} placeholder="Ex: cpc, organic, qrcode" />
                 </div>
               </div>
               <div>
