@@ -32,30 +32,6 @@ interface LinkInsights {
   conversion: number;
 }
 
-const sourcePresets = [
-  { label: 'Facebook', value: 'facebook' },
-  { label: 'Instagram', value: 'instagram' },
-  { label: 'Google', value: 'google' },
-  { label: 'Google Meu Negócio', value: 'google_meu_negocio' },
-  { label: 'QR Code', value: 'qrcode' },
-  { label: 'WhatsApp', value: 'whatsapp' },
-  { label: 'TikTok', value: 'tiktok' },
-  { label: 'Email', value: 'email' },
-  { label: 'Panfleto', value: 'panfleto' },
-  { label: 'Outro', value: 'outro' },
-];
-
-const mediumPresets = [
-  { label: 'CPC (Pago)', value: 'cpc' },
-  { label: 'CPM', value: 'cpm' },
-  { label: 'Orgânico', value: 'organic' },
-  { label: 'Social', value: 'social' },
-  { label: 'QR Code', value: 'qrcode' },
-  { label: 'Email', value: 'email' },
-  { label: 'Referência', value: 'referral' },
-  { label: 'Offline', value: 'offline' },
-];
-
 interface Props {
   tenantId: string | null;
 }
