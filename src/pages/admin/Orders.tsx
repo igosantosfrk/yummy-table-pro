@@ -81,7 +81,7 @@ const Orders = () => {
     updateStatus(draggableId, newStatus);
   }, [orders]);
 
-
+  const openDetail = (order: Order) => {
     setSelectedOrder(order);
     setDetailOpen(true);
   };
