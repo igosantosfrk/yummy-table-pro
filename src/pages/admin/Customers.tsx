@@ -13,11 +13,13 @@ import { motion } from 'framer-motion';
 import {
   Users, Search, Crown, Phone, Mail, MapPin, ShoppingBag,
   DollarSign, Calendar, TrendingUp, Star, Save, Tag, ArrowUpDown,
-  ChevronUp, ChevronDown, Award, Gift
+  ChevronUp, ChevronDown, Award, Gift, Globe, ExternalLink, CreditCard,
+  Truck, Clock, RotateCcw
 } from 'lucide-react';
 import DateRangeFilter from '@/components/admin/DateRangeFilter';
 import { useDateRange } from '@/hooks/useDateRange';
 import { toast } from 'sonner';
+import { paymentMethodLabels, paymentStatusLabels, statusConfig } from '@/components/admin/orders/types';
 
 interface Customer {
   id: string;
@@ -43,11 +45,26 @@ interface OrderHistory {
   id: string;
   order_number: number;
   total: number;
+  subtotal: number;
+  delivery_fee: number;
+  discount: number;
   status: string;
   payment_method: string;
+  payment_status: string;
   created_at: string;
+  delivery_address: string | null;
+  delivery_neighborhood: string | null;
+  delivery_city: string | null;
+  delivery_notes: string | null;
+  notes: string | null;
   utm_source: string | null;
   utm_campaign: string | null;
+  utm_medium: string | null;
+  utm_content: string | null;
+  utm_term: string | null;
+  utm_ad_link: string | null;
+  session_id: string | null;
+  stripe_payment_intent_id: string | null;
 }
 
 const tierConfig: Record<string, { label: string; color: string; icon: string }> = {
@@ -68,6 +85,19 @@ const item = {
   show: { opacity: 1, y: 0 },
 };
 
+function calcAvgReturnDays(orders: { created_at: string; status: string }[]): number | null {
+  const completed = orders
+    .filter(o => o.status !== 'cancelled')
+    .map(o => new Date(o.created_at).getTime())
+    .sort((a, b) => a - b);
+  if (completed.length < 2) return null;
+  let totalDiff = 0;
+  for (let i = 1; i < completed.length; i++) {
+    totalDiff += completed[i] - completed[i - 1];
+  }
+  return totalDiff / (completed.length - 1) / (1000 * 60 * 60 * 24);
+}
+
 const Customers = () => {
   const { tenantId } = useAuth();
   const { preset, setPreset, dateRange, customRange, setCustomRange } = useDateRange('max');
@@ -83,17 +113,19 @@ const Customers = () => {
   const [editEmail, setEditEmail] = useState('');
   const [editTags, setEditTags] = useState('');
   const [saving, setSaving] = useState(false);
+  const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
+  // For global avg return time KPI we fetch all orders dates
+  const [allOrdersDates, setAllOrdersDates] = useState<{ customer_phone: string; created_at: string; status: string }[]>([]);
 
   const fetchCustomers = async () => {
     if (!tenantId) return;
     setLoading(true);
-    
+
     let query = supabase
       .from('customers')
       .select('*')
       .eq('tenant_id', tenantId);
 
-    // Filter by period using first_order_at or last_order_at
     if (preset !== 'max') {
       query = query.gte('last_order_at', dateRange.from.toISOString())
         .lte('last_order_at', dateRange.to.toISOString());
@@ -104,8 +136,20 @@ const Customers = () => {
     setLoading(false);
   };
 
+  const fetchAllOrdersDates = async () => {
+    if (!tenantId) return;
+    const { data } = await supabase
+      .from('orders')
+      .select('customer_phone, created_at, status')
+      .eq('tenant_id', tenantId)
+      .neq('status', 'cancelled')
+      .order('created_at', { ascending: true });
+    setAllOrdersDates(data || []);
+  };
+
   useEffect(() => {
     fetchCustomers();
+    fetchAllOrdersDates();
   }, [tenantId, dateRange.from.getTime(), dateRange.to.getTime()]);
 
   const openDetail = async (customer: Customer) => {
@@ -114,15 +158,14 @@ const Customers = () => {
     setEditEmail(customer.email || '');
     setEditTags((customer.tags || []).join(', '));
     setDetailOpen(true);
+    setExpandedOrder(null);
 
-    // Fetch order history
     const { data } = await supabase
       .from('orders')
-      .select('id, order_number, total, status, payment_method, created_at, utm_source, utm_campaign')
+      .select('id, order_number, total, subtotal, delivery_fee, discount, status, payment_method, payment_status, created_at, delivery_address, delivery_neighborhood, delivery_city, delivery_notes, notes, utm_source, utm_campaign, utm_medium, utm_content, utm_term, utm_ad_link, session_id, stripe_payment_intent_id')
       .eq('tenant_id', tenantId!)
       .eq('customer_phone', customer.phone)
-      .order('created_at', { ascending: false })
-      .limit(50);
+      .order('created_at', { ascending: false });
     setOrderHistory((data as OrderHistory[]) || []);
   };
 
@@ -169,11 +212,46 @@ const Customers = () => {
   const returning = customers.filter(c => c.total_orders > 1).length;
   const returnRate = totalCustomers > 0 ? (returning / totalCustomers) * 100 : 0;
 
+  // Global avg return time
+  const globalAvgReturnDays = useMemo(() => {
+    if (allOrdersDates.length === 0) return null;
+    // Group by phone
+    const byPhone: Record<string, number[]> = {};
+    allOrdersDates.forEach(o => {
+      if (!byPhone[o.customer_phone]) byPhone[o.customer_phone] = [];
+      byPhone[o.customer_phone].push(new Date(o.created_at).getTime());
+    });
+    let totalDiff = 0;
+    let totalGaps = 0;
+    Object.values(byPhone).forEach(dates => {
+      if (dates.length < 2) return;
+      dates.sort((a, b) => a - b);
+      for (let i = 1; i < dates.length; i++) {
+        totalDiff += dates[i] - dates[i - 1];
+        totalGaps++;
+      }
+    });
+    if (totalGaps === 0) return null;
+    return totalDiff / totalGaps / (1000 * 60 * 60 * 24);
+  }, [allOrdersDates]);
+
+  // Customer-specific avg return
+  const customerAvgReturn = useMemo(() => {
+    return calcAvgReturnDays(orderHistory);
+  }, [orderHistory]);
+
   const medals = ['🥇', '🥈', '🥉'];
 
   const SortIcon = ({ field }: { field: SortField }) => {
     if (sortField !== field) return <ArrowUpDown className="h-3 w-3 text-muted-foreground" />;
     return sortAsc ? <ChevronUp className="h-3 w-3 text-primary" /> : <ChevronDown className="h-3 w-3 text-primary" />;
+  };
+
+  const formatReturnDays = (days: number | null) => {
+    if (days === null) return '—';
+    if (days < 1) return `${Math.round(days * 24)}h`;
+    if (days < 30) return `${Math.round(days)}d`;
+    return `${Math.round(days / 30)}m`;
   };
 
   return (
@@ -196,12 +274,13 @@ const Customers = () => {
       </div>
 
       {/* KPI Cards */}
-      <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-2 lg:grid-cols-5 gap-3">
         {[
           { label: 'Total de Clientes', value: totalCustomers.toString(), icon: Users, gradient: 'from-blue-500/20 to-cyan-600/10', iconColor: 'text-blue-400', border: 'border-blue-500/20' },
           { label: 'Receita Total', value: `R$ ${totalRevenue.toFixed(0)}`, icon: DollarSign, gradient: 'from-emerald-500/20 to-green-600/10', iconColor: 'text-emerald-400', border: 'border-emerald-500/20' },
           { label: 'LTV Médio', value: `R$ ${avgLTV.toFixed(2).replace('.', ',')}`, icon: TrendingUp, gradient: 'from-primary/20 to-accent/10', iconColor: 'text-primary', border: 'border-primary/20' },
           { label: 'Taxa de Retorno', value: `${returnRate.toFixed(1)}%`, icon: Award, gradient: 'from-purple-500/20 to-violet-600/10', iconColor: 'text-purple-400', border: 'border-purple-500/20' },
+          { label: 'Tempo Médio Retorno', value: formatReturnDays(globalAvgReturnDays), icon: RotateCcw, gradient: 'from-orange-500/20 to-amber-600/10', iconColor: 'text-orange-400', border: 'border-orange-500/20' },
         ].map(kpi => (
           <motion.div key={kpi.label} variants={item}>
             <div className={`relative overflow-hidden rounded-xl border ${kpi.border} bg-gradient-to-br ${kpi.gradient} backdrop-blur-sm p-4 cursor-default`}>
@@ -334,7 +413,7 @@ const Customers = () => {
 
       {/* Customer Detail Sheet */}
       <Sheet open={detailOpen} onOpenChange={setDetailOpen}>
-        <SheetContent className="w-full sm:max-w-lg overflow-y-auto bg-card border-border/30">
+        <SheetContent className="w-full sm:max-w-xl overflow-y-auto bg-card border-border/30">
           {selectedCustomer && (() => {
             const tier = tierConfig[selectedCustomer.loyalty_tier] || tierConfig.bronze;
             return (
@@ -342,7 +421,7 @@ const Customers = () => {
                 <SheetHeader className="pb-4">
                   <SheetTitle className="font-display text-xl flex items-center gap-2">
                     <Crown className="h-5 w-5 text-amber-400" />
-                    Perfil do Cliente
+                    Dossiê do Cliente
                   </SheetTitle>
                 </SheetHeader>
 
@@ -368,13 +447,15 @@ const Customers = () => {
                     </div>
                   </div>
 
-                  {/* Stats */}
-                  <div className="grid grid-cols-2 gap-3">
+                  {/* Stats - now 5 items with avg return */}
+                  <div className="grid grid-cols-3 gap-2">
                     {[
                       { icon: ShoppingBag, color: 'text-blue-400', value: selectedCustomer.total_orders.toString(), label: 'Pedidos' },
                       { icon: DollarSign, color: 'text-emerald-400', value: `R$ ${Number(selectedCustomer.total_spent).toFixed(0)}`, label: 'Total Gasto' },
                       { icon: TrendingUp, color: 'text-primary', value: `R$ ${Number(selectedCustomer.avg_ticket).toFixed(2).replace('.', ',')}`, label: 'Ticket Médio' },
                       { icon: Calendar, color: 'text-purple-400', value: selectedCustomer.first_order_at ? new Date(selectedCustomer.first_order_at).toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' }) : '—', label: 'Cliente desde' },
+                      { icon: Clock, color: 'text-amber-400', value: selectedCustomer.last_order_at ? new Date(selectedCustomer.last_order_at).toLocaleDateString('pt-BR') : '—', label: 'Último Pedido' },
+                      { icon: RotateCcw, color: 'text-orange-400', value: formatReturnDays(customerAvgReturn), label: 'Retorno Médio' },
                     ].map(s => (
                       <div key={s.label} className="text-center p-3 rounded-xl bg-muted/20 border border-border/20">
                         <s.icon className={`h-4 w-4 ${s.color} mx-auto mb-1`} />
@@ -462,33 +543,143 @@ const Customers = () => {
 
                   <Separator className="bg-border/20" />
 
-                  {/* Order History */}
+                  {/* Full Order History */}
                   <div>
                     <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3 block">
-                      Histórico de Pedidos ({orderHistory.length})
+                      Histórico Completo de Pedidos ({orderHistory.length})
                     </span>
-                    <div className="space-y-2 max-h-[350px] overflow-y-auto pr-1">
-                      {orderHistory.map(h => (
-                        <div key={h.id} className="flex items-center justify-between py-2.5 px-3 rounded-lg bg-muted/10 border border-border/10 hover:bg-muted/20 transition-colors">
-                          <div>
-                            <span className="text-sm font-semibold text-primary">#{h.order_number}</span>
-                            <p className="text-[11px] text-muted-foreground">
-                              {new Date(h.created_at).toLocaleDateString('pt-BR')} · {h.payment_method}
-                            </p>
-                            {h.utm_source && (
-                              <p className="text-[10px] text-muted-foreground mt-0.5">
-                                📢 {h.utm_source}{h.utm_campaign ? ` / ${h.utm_campaign}` : ''}
-                              </p>
+                    <div className="space-y-2 max-h-[500px] overflow-y-auto pr-1">
+                      {orderHistory.map(h => {
+                        const isExpanded = expandedOrder === h.id;
+                        const sConfig = statusConfig[h.status as keyof typeof statusConfig];
+                        const hasTracking = h.utm_source || h.utm_campaign || h.utm_medium || h.utm_content || h.utm_term || h.utm_ad_link;
+                        
+                        return (
+                          <div
+                            key={h.id}
+                            className={`rounded-lg border transition-colors ${isExpanded ? 'bg-muted/20 border-primary/20' : 'bg-muted/10 border-border/10 hover:bg-muted/20'}`}
+                          >
+                            {/* Order Header - clickable */}
+                            <div
+                              className="flex items-center justify-between py-2.5 px-3 cursor-pointer"
+                              onClick={() => setExpandedOrder(isExpanded ? null : h.id)}
+                            >
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-sm font-semibold text-primary">#{h.order_number}</span>
+                                  {sConfig && (
+                                    <Badge className={`${sConfig.bgClass} ${sConfig.color} border text-[10px] px-1.5 py-0`}>
+                                      {sConfig.label}
+                                    </Badge>
+                                  )}
+                                </div>
+                                <p className="text-[11px] text-muted-foreground">
+                                  {new Date(h.created_at).toLocaleDateString('pt-BR')} às {new Date(h.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                                </p>
+                              </div>
+                              <div className="text-right flex items-center gap-2">
+                                <span className="text-sm font-bold">R$ {Number(h.total).toFixed(2).replace('.', ',')}</span>
+                                <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                              </div>
+                            </div>
+
+                            {/* Expanded Details */}
+                            {isExpanded && (
+                              <div className="px-3 pb-3 space-y-2.5 border-t border-border/10 pt-2.5">
+                                {/* Financial breakdown */}
+                                <div className="grid grid-cols-3 gap-2 text-xs">
+                                  <div>
+                                    <span className="text-muted-foreground">Subtotal</span>
+                                    <p className="font-semibold">R$ {Number(h.subtotal).toFixed(2).replace('.', ',')}</p>
+                                  </div>
+                                  <div>
+                                    <span className="text-muted-foreground">Entrega</span>
+                                    <p className="font-semibold">R$ {Number(h.delivery_fee).toFixed(2).replace('.', ',')}</p>
+                                  </div>
+                                  {Number(h.discount) > 0 && (
+                                    <div>
+                                      <span className="text-muted-foreground">Desconto</span>
+                                      <p className="font-semibold text-emerald-400">-R$ {Number(h.discount).toFixed(2).replace('.', ',')}</p>
+                                    </div>
+                                  )}
+                                </div>
+
+                                {/* Payment */}
+                                <div className="flex items-center gap-2">
+                                  <CreditCard className="h-3 w-3 text-muted-foreground" />
+                                  <Badge variant="outline" className="text-[10px]">
+                                    {paymentMethodLabels[h.payment_method as keyof typeof paymentMethodLabels] || h.payment_method}
+                                  </Badge>
+                                  <Badge className={`text-[10px] border ${h.payment_status === 'confirmed' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border-amber-500/20'}`}>
+                                    {paymentStatusLabels[h.payment_status as keyof typeof paymentStatusLabels] || h.payment_status}
+                                  </Badge>
+                                </div>
+
+                                {/* Delivery address */}
+                                {h.delivery_address && (
+                                  <div className="text-xs">
+                                    <span className="text-muted-foreground flex items-center gap-1 mb-0.5">
+                                      <Truck className="h-3 w-3" /> Endereço
+                                    </span>
+                                    <p>{h.delivery_address}</p>
+                                    {h.delivery_neighborhood && <p className="text-muted-foreground">{h.delivery_neighborhood}{h.delivery_city ? ` - ${h.delivery_city}` : ''}</p>}
+                                    {h.delivery_notes && <p className="text-muted-foreground mt-0.5">📝 {h.delivery_notes}</p>}
+                                  </div>
+                                )}
+
+                                {/* Notes */}
+                                {h.notes && (
+                                  <div className="text-xs">
+                                    <span className="text-muted-foreground">📝 Observações:</span>
+                                    <p>{h.notes}</p>
+                                  </div>
+                                )}
+
+                                {/* Tracking / UTM */}
+                                {hasTracking && (
+                                  <div className="p-2 rounded-lg bg-muted/20 border border-border/10">
+                                    <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1 mb-1.5">
+                                      <Globe className="h-3 w-3" /> Rastreamento
+                                    </span>
+                                    <div className="grid grid-cols-2 gap-1 text-[11px]">
+                                      {h.utm_source && (
+                                        <div><span className="text-muted-foreground">Fonte:</span> <span className="font-medium">{h.utm_source}</span></div>
+                                      )}
+                                      {h.utm_campaign && (
+                                        <div><span className="text-muted-foreground">Campanha:</span> <span className="font-medium">{h.utm_campaign}</span></div>
+                                      )}
+                                      {h.utm_medium && (
+                                        <div><span className="text-muted-foreground">Mídia:</span> <span className="font-medium">{h.utm_medium}</span></div>
+                                      )}
+                                      {h.utm_content && (
+                                        <div><span className="text-muted-foreground">Conteúdo:</span> <span className="font-medium">{h.utm_content}</span></div>
+                                      )}
+                                      {h.utm_term && (
+                                        <div><span className="text-muted-foreground">Termo:</span> <span className="font-medium">{h.utm_term}</span></div>
+                                      )}
+                                      {h.utm_ad_link && (
+                                        <div>
+                                          <a href={h.utm_ad_link} target="_blank" rel="noopener noreferrer" className="text-primary hover:text-accent flex items-center gap-1">
+                                            <ExternalLink className="h-3 w-3" /> Ver anúncio
+                                          </a>
+                                        </div>
+                                      )}
+                                    </div>
+                                    {h.session_id && (
+                                      <p className="text-[10px] text-muted-foreground mt-1 font-mono">Sessão: {h.session_id.slice(0, 12)}...</p>
+                                    )}
+                                  </div>
+                                )}
+
+                                {/* Stripe ID */}
+                                {h.stripe_payment_intent_id && (
+                                  <p className="text-[10px] text-muted-foreground font-mono">Stripe: {h.stripe_payment_intent_id}</p>
+                                )}
+                              </div>
                             )}
                           </div>
-                          <div className="text-right">
-                            <span className="text-sm font-bold">R$ {Number(h.total).toFixed(2).replace('.', ',')}</span>
-                            <p className="text-[10px] text-muted-foreground">
-                              {h.status === 'completed' ? '✅' : h.status === 'cancelled' ? '❌' : '⏳'} {h.status}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                       {orderHistory.length === 0 && (
                         <p className="text-sm text-muted-foreground text-center py-4">Nenhum pedido encontrado</p>
                       )}
