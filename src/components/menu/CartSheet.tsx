@@ -100,7 +100,7 @@ const CartSheet = ({ cart, cartOpen, setCartOpen, onUpdateQuantity, deliveryFee,
                     R$ {(cartTotal + (deliveryFee || 0)).toFixed(2)}
                   </span>
                 </div>
-                <Button className="w-full gradient-primary text-primary-foreground" size="lg">
+                <Button onClick={onCheckout} className="w-full gradient-primary text-primary-foreground" size="lg">
                   Finalizar Pedido <ChevronRight className="h-4 w-4 ml-2" />
                 </Button>
               </div>

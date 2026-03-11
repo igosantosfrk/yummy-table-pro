@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import MenuHeader from '@/components/menu/MenuHeader';
 import CategoryListScreen from '@/components/menu/CategoryListScreen';
 import SizeSelectionScreen from '@/components/menu/SizeSelectionScreen';
 import ProductListScreen from '@/components/menu/ProductListScreen';
 import CartSheet from '@/components/menu/CartSheet';
+import CheckoutScreen from '@/components/menu/CheckoutScreen';
+import OrderSuccessScreen from '@/components/menu/OrderSuccessScreen';
 import { useMenuTracking } from '@/hooks/useMenuTracking';
 
 interface Tenant {
@@ -51,10 +53,13 @@ interface CartItem {
 type Screen =
   | { type: 'categories' }
   | { type: 'sizes'; parentCategory: Category }
-  | { type: 'products'; category: Category };
+  | { type: 'products'; category: Category }
+  | { type: 'checkout' }
+  | { type: 'success'; orderNumber: number };
 
 const PublicMenu = () => {
   const { slug } = useParams<{ slug: string }>();
+  const [searchParams] = useSearchParams();
   const [tenant, setTenant] = useState<Tenant | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
@@ -64,6 +69,15 @@ const PublicMenu = () => {
   const [screen, setScreen] = useState<Screen>({ type: 'categories' });
 
   const { trackPageView, sessionId, utmParams } = useMenuTracking(tenant?.id || null);
+
+  // Handle payment redirect from Stripe
+  useEffect(() => {
+    const payment = searchParams.get('payment');
+    const orderNum = searchParams.get('order');
+    if (payment === 'success' && orderNum) {
+      setScreen({ type: 'success', orderNumber: parseInt(orderNum) });
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     const load = async () => {
@@ -98,9 +112,7 @@ const PublicMenu = () => {
     setScreen({ type: 'products', category });
   };
 
-  const handleBackToCategories = () => {
-    setScreen({ type: 'categories' });
-  };
+  const handleBackToCategories = () => setScreen({ type: 'categories' });
 
   const handleBackToSizes = (parentCategory: Category) => {
     setScreen({ type: 'sizes', parentCategory });
@@ -122,6 +134,20 @@ const PublicMenu = () => {
     );
   };
 
+  const handleCheckout = () => {
+    setCartOpen(false);
+    setScreen({ type: 'checkout' });
+  };
+
+  const handleOrderComplete = (orderNumber: number) => {
+    setCart([]);
+    setScreen({ type: 'success', orderNumber });
+  };
+
+  const handleBackToMenu = () => {
+    setScreen({ type: 'categories' });
+  };
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[hsl(220,20%,7%)]">
@@ -141,7 +167,6 @@ const PublicMenu = () => {
     );
   }
 
-  // Determine back handler for product screen
   const getProductBackHandler = (category: Category) => {
     if (category.parent_id) {
       const parent = categories.find(c => c.id === category.parent_id);
@@ -150,16 +175,15 @@ const PublicMenu = () => {
     return handleBackToCategories;
   };
 
+  const showCart = screen.type !== 'checkout' && screen.type !== 'success';
+
   return (
     <div className="min-h-screen bg-[hsl(220,20%,7%)] text-[hsl(220,14%,96%)] pb-24">
-      <MenuHeader tenant={tenant} />
+      {screen.type !== 'checkout' && screen.type !== 'success' && <MenuHeader tenant={tenant} />}
 
       <div className="mt-6">
         {screen.type === 'categories' && (
-          <CategoryListScreen
-            categories={categories}
-            onSelectCategory={handleSelectCategory}
-          />
+          <CategoryListScreen categories={categories} onSelectCategory={handleSelectCategory} />
         )}
 
         {screen.type === 'sizes' && (
@@ -181,15 +205,35 @@ const PublicMenu = () => {
             onBack={getProductBackHandler(screen.category)}
           />
         )}
+
+        {screen.type === 'checkout' && (
+          <CheckoutScreen
+            cart={cart}
+            tenantId={tenant.id}
+            tenantSlug={tenant.slug}
+            deliveryFee={tenant.delivery_fee}
+            sessionId={sessionId}
+            utmParams={utmParams}
+            onBack={() => setScreen({ type: 'categories' })}
+            onOrderComplete={handleOrderComplete}
+          />
+        )}
+
+        {screen.type === 'success' && (
+          <OrderSuccessScreen orderNumber={screen.orderNumber} onBackToMenu={handleBackToMenu} />
+        )}
       </div>
 
-      <CartSheet
-        cart={cart}
-        cartOpen={cartOpen}
-        setCartOpen={setCartOpen}
-        onUpdateQuantity={updateQuantity}
-        deliveryFee={tenant.delivery_fee}
-      />
+      {showCart && (
+        <CartSheet
+          cart={cart}
+          cartOpen={cartOpen}
+          setCartOpen={setCartOpen}
+          onUpdateQuantity={updateQuantity}
+          deliveryFee={tenant.delivery_fee}
+          onCheckout={handleCheckout}
+        />
+      )}
     </div>
   );
 };
