@@ -439,15 +439,30 @@ const Customers = () => {
         </motion.div>
       )}
 
-      {/* Search */}
-      <div className="flex gap-2">
-        <div className="relative flex-1">
+      {/* Search + Filters */}
+      <div className="flex gap-2 flex-wrap">
+        <div className="relative flex-1 min-w-[200px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input placeholder="Buscar por nome, telefone ou email..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 bg-muted/20 border-border/20" />
         </div>
-        {showInactiveOnly && (
-          <Button variant="outline" size="sm" className="border-orange-500/30 text-orange-400" onClick={() => setShowInactiveOnly(false)}>
-            <X className="h-3.5 w-3.5 mr-1" /> Limpar filtro
+        <Select value={filterDaysWithout?.toString() || 'all'} onValueChange={v => setFilterDaysWithout(v === 'all' ? null : parseInt(v))}>
+          <SelectTrigger className="w-[180px] bg-muted/20 border-border/20 text-sm">
+            <Clock className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
+            <SelectValue placeholder="Dias sem pedir" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos os clientes</SelectItem>
+            <SelectItem value="10">+10 dias sem pedir</SelectItem>
+            <SelectItem value="30">+30 dias sem pedir</SelectItem>
+            <SelectItem value="45">+45 dias sem pedir</SelectItem>
+            <SelectItem value="60">+60 dias sem pedir</SelectItem>
+            <SelectItem value="90">+90 dias sem pedir</SelectItem>
+            <SelectItem value="180">+180 dias sem pedir</SelectItem>
+          </SelectContent>
+        </Select>
+        {(showInactiveOnly || filterDaysWithout !== null) && (
+          <Button variant="outline" size="sm" className="border-orange-500/30 text-orange-400" onClick={() => { setShowInactiveOnly(false); setFilterDaysWithout(null); }}>
+            <X className="h-3.5 w-3.5 mr-1" /> Limpar filtros
           </Button>
         )}
       </div>
