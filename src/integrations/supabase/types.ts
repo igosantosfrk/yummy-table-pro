@@ -14,6 +14,53 @@ export type Database = {
   }
   public: {
     Tables: {
+      ad_accounts: {
+        Row: {
+          access_token: string
+          account_id: string
+          account_name: string | null
+          created_at: string
+          id: string
+          is_active: boolean | null
+          last_synced_at: string | null
+          platform: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          access_token: string
+          account_id: string
+          account_name?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_synced_at?: string | null
+          platform: string
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          access_token?: string
+          account_id?: string
+          account_name?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_synced_at?: string | null
+          platform?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ad_accounts_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       categories: {
         Row: {
           created_at: string
