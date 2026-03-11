@@ -163,6 +163,27 @@ const AdminSettings = () => {
         </CardContent>
       </Card>
 
+      <Card className="glass">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 font-display">
+            <CreditCard className="h-5 w-5" /> Gateway de Pagamento (Stripe)
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            Configure sua conta Stripe para receber pagamentos online via cartão e PIX diretamente no cardápio digital.
+          </p>
+          <div className="space-y-2">
+            <Label>Publishable Key</Label>
+            <Input value={form.stripe_publishable_key} onChange={e => setForm({ ...form, stripe_publishable_key: e.target.value })} placeholder="pk_live_..." />
+          </div>
+          <div className="space-y-2">
+            <Label>Secret Key</Label>
+            <Input type="password" value={form.stripe_secret_key} onChange={e => setForm({ ...form, stripe_secret_key: e.target.value })} placeholder="sk_live_..." />
+          </div>
+        </CardContent>
+      </Card>
+
       <Button onClick={handleSave} disabled={loading} className="gradient-primary text-white" size="lg">
         <Save className="h-4 w-4 mr-2" /> Salvar Configurações
       </Button>
