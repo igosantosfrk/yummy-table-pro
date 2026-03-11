@@ -70,7 +70,18 @@ const Orders = () => {
     fetchOrders();
   };
 
-  const openDetail = (order: Order) => {
+  const handleDragEnd = useCallback((result: DropResult) => {
+    const { draggableId, destination } = result;
+    if (!destination) return;
+    const newStatus = destination.droppableId as OrderStatus;
+    const order = orders.find(o => o.id === draggableId);
+    if (!order || order.status === newStatus) return;
+    // Optimistic update
+    setOrders(prev => prev.map(o => o.id === draggableId ? { ...o, status: newStatus } : o));
+    updateStatus(draggableId, newStatus);
+  }, [orders]);
+
+
     setSelectedOrder(order);
     setDetailOpen(true);
   };
