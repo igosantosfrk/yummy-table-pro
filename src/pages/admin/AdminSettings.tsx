@@ -41,6 +41,8 @@ const AdminSettings = () => {
           delivery_fee: String(data.delivery_fee || 0),
           min_order_value: String(data.min_order_value || 0),
           avg_delivery_time_min: String(data.avg_delivery_time_min || 45),
+          stripe_secret_key: data.stripe_secret_key || '',
+          stripe_publishable_key: data.stripe_publishable_key || '',
         });
       }
     });
