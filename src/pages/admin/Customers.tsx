@@ -187,12 +187,30 @@ const Customers = () => {
     setDetailOpen(true);
     setExpandedOrder(null);
     setAiAnalysis(null);
+    setLoyaltyTxns([]);
+    setCustomerCouponUsage([]);
 
-    const { data } = await supabase.from('orders')
-      .select('id, order_number, total, subtotal, delivery_fee, discount, status, payment_method, payment_status, created_at, delivery_address, delivery_neighborhood, delivery_city, delivery_notes, notes, utm_source, utm_campaign, utm_medium, utm_content, utm_term, utm_ad_link, session_id, stripe_payment_intent_id')
-      .eq('tenant_id', tenantId!).eq('customer_phone', customer.phone)
-      .order('created_at', { ascending: false });
-    setOrderHistory((data as OrderHistory[]) || []);
+    // Fetch orders, loyalty transactions, coupon usage in parallel
+    const [ordersRes, loyaltyRes, couponUsageRes] = await Promise.all([
+      supabase.from('orders')
+        .select('id, order_number, total, subtotal, delivery_fee, discount, status, payment_method, payment_status, created_at, delivery_address, delivery_neighborhood, delivery_city, delivery_notes, notes, utm_source, utm_campaign, utm_medium, utm_content, utm_term, utm_ad_link, session_id, stripe_payment_intent_id')
+        .eq('tenant_id', tenantId!).eq('customer_phone', customer.phone)
+        .order('created_at', { ascending: false }),
+      supabase.from('loyalty_transactions')
+        .select('id, type, points, description, created_at')
+        .eq('customer_id', customer.id)
+        .order('created_at', { ascending: false })
+        .limit(20),
+      supabase.from('coupon_usage')
+        .select('id, discount_applied, order_total, used_at, coupon_id')
+        .eq('customer_phone', customer.phone)
+        .eq('tenant_id', tenantId!)
+        .order('used_at', { ascending: false })
+        .limit(20),
+    ]);
+    setOrderHistory((ordersRes.data as OrderHistory[]) || []);
+    setLoyaltyTxns((loyaltyRes.data as any[]) || []);
+    setCustomerCouponUsage((couponUsageRes.data as any[]) || []);
   };
 
   // ── AI analysis ──
