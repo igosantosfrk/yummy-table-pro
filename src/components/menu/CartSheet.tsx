@@ -27,9 +27,10 @@ interface CartSheetProps {
   setCartOpen: (open: boolean) => void;
   onUpdateQuantity: (productId: string, delta: number) => void;
   deliveryFee: number | null;
+  onCheckout?: () => void;
 }
 
-const CartSheet = ({ cart, cartOpen, setCartOpen, onUpdateQuantity, deliveryFee }: CartSheetProps) => {
+const CartSheet = ({ cart, cartOpen, setCartOpen, onUpdateQuantity, deliveryFee, onCheckout }: CartSheetProps) => {
   const cartTotal = cart.reduce((sum, i) => sum + i.product.price * i.quantity, 0);
   const cartCount = cart.reduce((sum, i) => sum + i.quantity, 0);
 
@@ -99,7 +100,7 @@ const CartSheet = ({ cart, cartOpen, setCartOpen, onUpdateQuantity, deliveryFee 
                     R$ {(cartTotal + (deliveryFee || 0)).toFixed(2)}
                   </span>
                 </div>
-                <Button className="w-full gradient-primary text-primary-foreground" size="lg">
+                <Button onClick={onCheckout} className="w-full gradient-primary text-primary-foreground" size="lg">
                   Finalizar Pedido <ChevronRight className="h-4 w-4 ml-2" />
                 </Button>
               </div>

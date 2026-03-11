@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { toast } from '@/hooks/use-toast';
-import { Settings, Save } from 'lucide-react';
+import { Settings, Save, CreditCard } from 'lucide-react';
 
 const AdminSettings = () => {
   const { tenantId } = useAuth();
@@ -18,6 +18,7 @@ const AdminSettings = () => {
     address: '', city: '', state: '', zip_code: '',
     logo_url: '', banner_url: '', is_open: true,
     delivery_fee: '0', min_order_value: '0', avg_delivery_time_min: '45',
+    stripe_secret_key: '', stripe_publishable_key: '',
   });
 
   useEffect(() => {
@@ -40,6 +41,8 @@ const AdminSettings = () => {
           delivery_fee: String(data.delivery_fee || 0),
           min_order_value: String(data.min_order_value || 0),
           avg_delivery_time_min: String(data.avg_delivery_time_min || 45),
+          stripe_secret_key: data.stripe_secret_key || '',
+          stripe_publishable_key: data.stripe_publishable_key || '',
         });
       }
     });
@@ -58,6 +61,8 @@ const AdminSettings = () => {
       delivery_fee: parseFloat(form.delivery_fee) || 0,
       min_order_value: parseFloat(form.min_order_value) || 0,
       avg_delivery_time_min: parseInt(form.avg_delivery_time_min) || 45,
+      stripe_secret_key: form.stripe_secret_key || null,
+      stripe_publishable_key: form.stripe_publishable_key || null,
     }).eq('id', tenantId);
     setLoading(false);
     if (error) { toast({ title: 'Erro', description: error.message, variant: 'destructive' }); return; }
@@ -154,6 +159,27 @@ const AdminSettings = () => {
               <Label>Tempo Entrega (min)</Label>
               <Input type="number" value={form.avg_delivery_time_min} onChange={e => setForm({ ...form, avg_delivery_time_min: e.target.value })} />
             </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="glass">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 font-display">
+            <CreditCard className="h-5 w-5" /> Gateway de Pagamento (Stripe)
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            Configure sua conta Stripe para receber pagamentos online via cartão e PIX diretamente no cardápio digital.
+          </p>
+          <div className="space-y-2">
+            <Label>Publishable Key</Label>
+            <Input value={form.stripe_publishable_key} onChange={e => setForm({ ...form, stripe_publishable_key: e.target.value })} placeholder="pk_live_..." />
+          </div>
+          <div className="space-y-2">
+            <Label>Secret Key</Label>
+            <Input type="password" value={form.stripe_secret_key} onChange={e => setForm({ ...form, stripe_secret_key: e.target.value })} placeholder="sk_live_..." />
           </div>
         </CardContent>
       </Card>
