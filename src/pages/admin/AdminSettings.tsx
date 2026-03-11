@@ -61,6 +61,8 @@ const AdminSettings = () => {
       delivery_fee: parseFloat(form.delivery_fee) || 0,
       min_order_value: parseFloat(form.min_order_value) || 0,
       avg_delivery_time_min: parseInt(form.avg_delivery_time_min) || 45,
+      stripe_secret_key: form.stripe_secret_key || null,
+      stripe_publishable_key: form.stripe_publishable_key || null,
     }).eq('id', tenantId);
     setLoading(false);
     if (error) { toast({ title: 'Erro', description: error.message, variant: 'destructive' }); return; }
