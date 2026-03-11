@@ -230,6 +230,7 @@ export type Database = {
         Row: {
           address: string | null
           avg_ticket: number
+          birthday: string | null
           city: string | null
           created_at: string
           email: string | null
@@ -251,6 +252,7 @@ export type Database = {
         Insert: {
           address?: string | null
           avg_ticket?: number
+          birthday?: string | null
           city?: string | null
           created_at?: string
           email?: string | null
@@ -272,6 +274,7 @@ export type Database = {
         Update: {
           address?: string | null
           avg_ticket?: number
+          birthday?: string | null
           city?: string | null
           created_at?: string
           email?: string | null
@@ -1142,6 +1145,133 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "user_roles_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      whatsapp_campaign_logs: {
+        Row: {
+          campaign_id: string
+          customer_id: string | null
+          customer_phone: string
+          id: string
+          message_sent: string
+          sent_at: string
+          status: string
+          tenant_id: string
+        }
+        Insert: {
+          campaign_id: string
+          customer_id?: string | null
+          customer_phone: string
+          id?: string
+          message_sent: string
+          sent_at?: string
+          status?: string
+          tenant_id: string
+        }
+        Update: {
+          campaign_id?: string
+          customer_id?: string | null
+          customer_phone?: string
+          id?: string
+          message_sent?: string
+          sent_at?: string
+          status?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_campaign_logs_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "whatsapp_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "whatsapp_campaign_logs_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "whatsapp_campaign_logs_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      whatsapp_campaigns: {
+        Row: {
+          campaign_type: string
+          coupon_id: string | null
+          created_at: string
+          frequency: string | null
+          id: string
+          inactive_days: number | null
+          is_active: boolean
+          last_sent_at: string | null
+          name: string
+          send_day: number | null
+          send_hour: number | null
+          template_message: string
+          tenant_id: string
+          total_sent: number
+          updated_at: string
+          use_ai_personalization: boolean | null
+        }
+        Insert: {
+          campaign_type?: string
+          coupon_id?: string | null
+          created_at?: string
+          frequency?: string | null
+          id?: string
+          inactive_days?: number | null
+          is_active?: boolean
+          last_sent_at?: string | null
+          name: string
+          send_day?: number | null
+          send_hour?: number | null
+          template_message: string
+          tenant_id: string
+          total_sent?: number
+          updated_at?: string
+          use_ai_personalization?: boolean | null
+        }
+        Update: {
+          campaign_type?: string
+          coupon_id?: string | null
+          created_at?: string
+          frequency?: string | null
+          id?: string
+          inactive_days?: number | null
+          is_active?: boolean
+          last_sent_at?: string | null
+          name?: string
+          send_day?: number | null
+          send_hour?: number | null
+          template_message?: string
+          tenant_id?: string
+          total_sent?: number
+          updated_at?: string
+          use_ai_personalization?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_campaigns_coupon_id_fkey"
+            columns: ["coupon_id"]
+            isOneToOne: false
+            referencedRelation: "coupons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "whatsapp_campaigns_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"

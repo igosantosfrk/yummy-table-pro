@@ -17,7 +17,7 @@ import {
   DollarSign, Calendar, TrendingUp, Star, Save, Tag, ArrowUpDown,
   ChevronUp, ChevronDown, Award, Gift, Globe, ExternalLink, CreditCard,
   Truck, Clock, RotateCcw, AlertTriangle, MessageSquare, Ticket,
-  Send, Brain, Loader2, Plus, Trash2, Sparkles, X
+  Send, Brain, Loader2, Plus, Trash2, Sparkles, X, Cake
 } from 'lucide-react';
 import DateRangeFilter from '@/components/admin/DateRangeFilter';
 import { useDateRange } from '@/hooks/useDateRange';
@@ -31,6 +31,7 @@ interface Customer {
   notes: string | null; tags: string[]; total_orders: number; total_spent: number;
   avg_ticket: number; last_order_at: string | null; first_order_at: string | null;
   loyalty_points: number; loyalty_tier: string; created_at: string;
+  birthday: string | null;
 }
 
 interface OrderHistory {
@@ -94,6 +95,7 @@ const Customers = () => {
   const [editNotes, setEditNotes] = useState('');
   const [editEmail, setEditEmail] = useState('');
   const [editTags, setEditTags] = useState('');
+  const [editBirthday, setEditBirthday] = useState('');
   const [saving, setSaving] = useState(false);
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
 
@@ -184,6 +186,7 @@ const Customers = () => {
     setEditNotes(customer.notes || '');
     setEditEmail(customer.email || '');
     setEditTags((customer.tags || []).join(', '));
+    setEditBirthday(customer.birthday || '');
     setDetailOpen(true);
     setExpandedOrder(null);
     setAiAnalysis(null);
@@ -243,7 +246,10 @@ const Customers = () => {
     if (!selectedCustomer) return;
     setSaving(true);
     const tags = editTags.split(',').map(t => t.trim()).filter(Boolean);
-    await supabase.from('customers').update({ notes: editNotes, email: editEmail || null, tags }).eq('id', selectedCustomer.id);
+    await supabase.from('customers').update({
+      notes: editNotes, email: editEmail || null, tags,
+      birthday: editBirthday || null,
+    }).eq('id', selectedCustomer.id);
     toast.success('Cliente atualizado');
     setSaving(false);
     fetchCustomers();
@@ -643,6 +649,10 @@ const Customers = () => {
                     <div>
                       <Label className="text-xs text-muted-foreground">E-mail</Label>
                       <Input value={editEmail} onChange={(e) => setEditEmail(e.target.value)} placeholder="email@exemplo.com" className="mt-1 bg-muted/20 border-border/20" />
+                    </div>
+                    <div>
+                      <Label className="text-xs text-muted-foreground flex items-center gap-1"><Cake className="h-3 w-3" /> Data de Aniversário</Label>
+                      <Input type="date" value={editBirthday} onChange={(e) => setEditBirthday(e.target.value)} className="mt-1 bg-muted/20 border-border/20" />
                     </div>
                     <div>
                       <Label className="text-xs text-muted-foreground flex items-center gap-1"><Tag className="h-3 w-3" /> Tags</Label>

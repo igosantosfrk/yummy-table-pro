@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.analyze-customer]
 verify_jwt = false
+
+[functions.send-whatsapp-campaigns]
+verify_jwt = false

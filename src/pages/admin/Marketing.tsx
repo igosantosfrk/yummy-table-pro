@@ -13,11 +13,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import {
   DollarSign, TrendingUp, Target, ShoppingCart, RefreshCw, Settings2,
-  Eye, MousePointer, ArrowUpRight, ArrowDownRight, Loader2, Plug, BarChart3, Link2, Ticket, Crown
+  Eye, MousePointer, ArrowUpRight, ArrowDownRight, Loader2, Plug, BarChart3, Link2, Ticket, Crown, MessageSquare
 } from 'lucide-react';
 import TrackingLinksTab from '@/components/admin/marketing/TrackingLinksTab';
 import CouponsTab from '@/components/admin/marketing/CouponsTab';
 import LoyaltyTab from '@/components/admin/marketing/LoyaltyTab';
+import WhatsAppAutomationTab from '@/components/admin/marketing/WhatsAppAutomationTab';
 
 interface Campaign {
   id: string;
@@ -228,6 +229,10 @@ const Marketing = () => {
             <TabsTrigger value="loyalty" className="gap-2">
               <Crown className="h-4 w-4" />
               Fidelidade
+            </TabsTrigger>
+            <TabsTrigger value="whatsapp" className="gap-2">
+              <MessageSquare className="h-4 w-4" />
+              Automação
             </TabsTrigger>
           </TabsList>
 
@@ -523,6 +528,11 @@ const Marketing = () => {
         {/* LOYALTY TAB */}
         <TabsContent value="loyalty">
           <LoyaltyTab tenantId={tenantId} />
+        </TabsContent>
+
+        {/* WHATSAPP AUTOMATION TAB */}
+        <TabsContent value="whatsapp">
+          <WhatsAppAutomationTab tenantId={tenantId} />
         </TabsContent>
       </Tabs>
     </div>
