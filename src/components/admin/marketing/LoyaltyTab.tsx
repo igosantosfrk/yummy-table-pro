@@ -563,7 +563,7 @@ const LoyaltyTab = ({ tenantId }: Props) => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>Tipo de Prêmio</Label>
-                <Select value={rType} onValueChange={setRType}>
+                <Select value={rType} onValueChange={handleRewardTypeChange}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="cashback">Cashback (R$)</SelectItem>
@@ -579,6 +579,34 @@ const LoyaltyTab = ({ tenantId }: Props) => {
                 <Input type="number" value={rValue} onChange={e => setRValue(e.target.value)} placeholder="10" />
               </div>
             </div>
+
+            {/* Selected product display for free_product */}
+            {rType === 'free_product' && (
+              <div className="space-y-2">
+                <Label>Produto Selecionado</Label>
+                {selectedProduct ? (
+                  <div className="flex items-center gap-3 p-3 rounded-lg border bg-muted/30">
+                    {selectedProduct.image_url ? (
+                      <img src={selectedProduct.image_url} alt={selectedProduct.name} className="w-10 h-10 rounded-md object-cover" />
+                    ) : (
+                      <div className="w-10 h-10 rounded-md bg-muted flex items-center justify-center">
+                        <Package className="h-5 w-5 text-muted-foreground" />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm truncate">{selectedProduct.name}</p>
+                      <p className="text-xs text-muted-foreground">{formatCurrency(selectedProduct.price)}</p>
+                    </div>
+                    <Button variant="outline" size="sm" onClick={openProductPicker}>Trocar</Button>
+                  </div>
+                ) : (
+                  <Button variant="outline" className="w-full gap-2" onClick={openProductPicker}>
+                    <Search className="h-4 w-4" /> Selecionar Produto
+                  </Button>
+                )}
+              </div>
+            )}
+
             <div>
               <Label>Pontos Necessários</Label>
               <Input type="number" value={rPoints} onChange={e => setRPoints(e.target.value)} placeholder="100" />
@@ -587,10 +615,65 @@ const LoyaltyTab = ({ tenantId }: Props) => {
               <Label>Prêmio Ativo</Label>
               <Switch checked={rActive} onCheckedChange={setRActive} />
             </div>
-            <Button onClick={saveReward} disabled={savingReward} className="w-full">
+            <Button onClick={saveReward} disabled={savingReward || (rType === 'free_product' && !selectedProduct)} className="w-full">
               {savingReward ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Gift className="h-4 w-4 mr-2" />}
               {editingReward ? 'Salvar' : 'Criar Prêmio'}
             </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Product Picker Dialog */}
+      <Dialog open={productPickerOpen} onOpenChange={setProductPickerOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Selecionar Produto</DialogTitle>
+            <DialogDescription>Escolha o produto que será oferecido como prêmio.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 mt-2">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                value={productSearch}
+                onChange={e => setProductSearch(e.target.value)}
+                placeholder="Buscar produto..."
+                className="pl-9"
+              />
+            </div>
+            <ScrollArea className="h-[320px]">
+              {loadingProducts ? (
+                <div className="flex justify-center py-8">
+                  <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                </div>
+              ) : filteredProducts.length === 0 ? (
+                <p className="text-center text-sm text-muted-foreground py-8">Nenhum produto encontrado.</p>
+              ) : (
+                <div className="space-y-1">
+                  {filteredProducts.map(product => (
+                    <button
+                      key={product.id}
+                      onClick={() => selectProduct(product)}
+                      className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-accent transition-colors text-left"
+                    >
+                      {product.image_url ? (
+                        <img src={product.image_url} alt={product.name} className="w-10 h-10 rounded-md object-cover flex-shrink-0" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-md bg-muted flex items-center justify-center flex-shrink-0">
+                          <Package className="h-5 w-5 text-muted-foreground" />
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-sm truncate">{product.name}</p>
+                        <p className="text-xs text-muted-foreground">{formatCurrency(product.price)}</p>
+                      </div>
+                      {selectedProduct?.id === product.id && (
+                        <Check className="h-4 w-4 text-primary flex-shrink-0" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </ScrollArea>
           </div>
         </DialogContent>
       </Dialog>
