@@ -31,6 +31,7 @@ interface Customer {
   notes: string | null; tags: string[]; total_orders: number; total_spent: number;
   avg_ticket: number; last_order_at: string | null; first_order_at: string | null;
   loyalty_points: number; loyalty_tier: string; created_at: string;
+  birthday: string | null;
 }
 
 interface OrderHistory {
