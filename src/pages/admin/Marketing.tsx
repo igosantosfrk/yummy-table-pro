@@ -50,6 +50,7 @@ interface AdAccount {
 
 const Marketing = () => {
   const { tenantId } = useAuth();
+  const { preset, setPreset, dateRange, customRange, setCustomRange } = useDateRange('today');
   const [tab, setTab] = useState('overview');
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [summary, setSummary] = useState<Summary | null>(null);
