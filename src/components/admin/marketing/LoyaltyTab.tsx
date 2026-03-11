@@ -79,6 +79,12 @@ const LoyaltyTab = ({ tenantId }: Props) => {
   const [redeemRewardId, setRedeemRewardId] = useState('');
   const [redeeming, setRedeeming] = useState(false);
 
+  // Product picker for free_product reward
+  const [productPickerOpen, setProductPickerOpen] = useState(false);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [productSearch, setProductSearch] = useState('');
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [loadingProducts, setLoadingProducts] = useState(false);
   useEffect(() => { if (tenantId) fetchAll(); }, [tenantId]);
 
   const fetchAll = async () => {
