@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { toast } from '@/hooks/use-toast';
-import { Settings, Save } from 'lucide-react';
+import { Settings, Save, CreditCard } from 'lucide-react';
 
 const AdminSettings = () => {
   const { tenantId } = useAuth();
