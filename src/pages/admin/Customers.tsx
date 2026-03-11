@@ -236,12 +236,24 @@ const Customers = () => {
     });
   }, [customers, inactivityDays]);
 
+  // Helper: days since last order
+  const getDaysSinceLastOrder = (customer: Customer): number | null => {
+    if (!customer.last_order_at) return null;
+    return Math.floor((Date.now() - new Date(customer.last_order_at).getTime()) / (1000 * 60 * 60 * 24));
+  };
+
   // ── Filtered list ──
   const filtered = useMemo(() => {
     let list = showInactiveOnly ? [...inactiveCustomers] : [...customers];
     if (search) {
       const q = search.toLowerCase();
       list = list.filter(c => c.name.toLowerCase().includes(q) || c.phone.includes(q) || (c.email || '').toLowerCase().includes(q));
+    }
+    if (filterDaysWithout !== null) {
+      list = list.filter(c => {
+        const days = getDaysSinceLastOrder(c);
+        return days === null || days >= filterDaysWithout;
+      });
     }
     list.sort((a, b) => {
       let va: any = a[sortField]; let vb: any = b[sortField];
@@ -252,7 +264,7 @@ const Customers = () => {
       return 0;
     });
     return list;
-  }, [customers, inactiveCustomers, showInactiveOnly, search, sortField, sortAsc]);
+  }, [customers, inactiveCustomers, showInactiveOnly, search, sortField, sortAsc, filterDaysWithout]);
 
   // ── KPIs ──
   const totalCustomers = customers.length;
