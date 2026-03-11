@@ -83,6 +83,7 @@ const Orders = () => {
   // Status summary
   const counts = {
     all: orders.length,
+    new: orders.filter(o => o.status === 'new').length,
     preparing: orders.filter(o => o.status === 'preparing').length,
     out_for_delivery: orders.filter(o => o.status === 'out_for_delivery').length,
     completed: orders.filter(o => o.status === 'completed').length,
