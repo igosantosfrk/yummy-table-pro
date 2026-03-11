@@ -6,6 +6,7 @@ import CategoryListScreen from '@/components/menu/CategoryListScreen';
 import SizeSelectionScreen from '@/components/menu/SizeSelectionScreen';
 import ProductListScreen from '@/components/menu/ProductListScreen';
 import CartSheet from '@/components/menu/CartSheet';
+import { useMenuTracking } from '@/hooks/useMenuTracking';
 
 interface Tenant {
   id: string;
@@ -62,6 +63,8 @@ const PublicMenu = () => {
   const [cartOpen, setCartOpen] = useState(false);
   const [screen, setScreen] = useState<Screen>({ type: 'categories' });
 
+  const { trackPageView, sessionId, utmParams } = useMenuTracking(tenant?.id || null);
+
   useEffect(() => {
     const load = async () => {
       if (!slug) return;
@@ -81,7 +84,7 @@ const PublicMenu = () => {
   }, [slug]);
 
   const handleSelectCategory = (category: Category) => {
-    // Check if this category has sub-categories (sizes)
+    trackPageView('category', category.id, category.name);
     const children = categories.filter(c => c.parent_id === category.id);
     if (children.length > 0) {
       setScreen({ type: 'sizes', parentCategory: category });
@@ -91,6 +94,7 @@ const PublicMenu = () => {
   };
 
   const handleSelectSubCategory = (category: Category) => {
+    trackPageView('category', category.id, category.name);
     setScreen({ type: 'products', category });
   };
 
@@ -103,6 +107,7 @@ const PublicMenu = () => {
   };
 
   const addToCart = (product: Product) => {
+    trackPageView('add_to_cart', product.id, product.name);
     setCart(prev => {
       const existing = prev.find(i => i.product.id === product.id);
       if (existing) return prev.map(i => i.product.id === product.id ? { ...i, quantity: i.quantity + 1 } : i);
