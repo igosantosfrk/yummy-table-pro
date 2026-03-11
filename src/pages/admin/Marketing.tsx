@@ -215,6 +215,10 @@ const Marketing = () => {
               <Settings2 className="h-4 w-4" />
               Conexões
             </TabsTrigger>
+            <TabsTrigger value="links" className="gap-2">
+              <Link2 className="h-4 w-4" />
+              Links
+            </TabsTrigger>
           </TabsList>
 
           {tab === 'overview' && hasAccounts && (
