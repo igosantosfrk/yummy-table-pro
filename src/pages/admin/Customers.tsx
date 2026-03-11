@@ -101,6 +101,10 @@ const Customers = () => {
   const [aiAnalysis, setAiAnalysis] = useState<string | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
 
+  // Loyalty transactions for dossier
+  const [loyaltyTxns, setLoyaltyTxns] = useState<{ id: string; type: string; points: number; description: string | null; created_at: string }[]>([]);
+  const [customerCouponUsage, setCustomerCouponUsage] = useState<{ id: string; discount_applied: number; order_total: number; used_at: string; coupon_id: string }[]>([]);
+
   // Inactive filter
   const [inactivityDays, setInactivityDays] = useState(29);
   const [showInactiveOnly, setShowInactiveOnly] = useState(false);
