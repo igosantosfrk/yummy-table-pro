@@ -135,6 +135,7 @@ const Orders = () => {
       <div className="flex flex-wrap gap-2">
         {([
           { key: 'all' as const, label: 'Todos', icon: ShoppingBag, count: counts.all },
+          { key: 'new' as const, label: 'Novos', icon: Sparkles, count: counts.new },
           { key: 'preparing' as const, label: 'Em Preparo', icon: ChefHat, count: counts.preparing },
           { key: 'out_for_delivery' as const, label: 'Em Entrega', icon: Truck, count: counts.out_for_delivery },
           { key: 'completed' as const, label: 'Finalizados', icon: CheckCircle, count: counts.completed },
