@@ -2,3 +2,9 @@ project_id = "mqswmgbpgozzjyrbjcuz"
 
 [functions.fetch-ad-campaigns]
 verify_jwt = false
+
+[functions.create-checkout]
+verify_jwt = false
+
+[functions.create-cash-order]
+verify_jwt = false
