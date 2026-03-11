@@ -10,9 +10,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { toast } from 'sonner';
-import { Plus, Gift, Award, Edit2, Trash2, Loader2, Star, Users, DollarSign, TrendingUp, Crown, Coins, ArrowRight } from 'lucide-react';
+import { Plus, Gift, Award, Edit2, Trash2, Loader2, Star, Users, DollarSign, TrendingUp, Crown, Coins, ArrowRight, Search, Package, Check } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
