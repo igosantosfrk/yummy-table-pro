@@ -115,6 +115,80 @@ export type Database = {
           },
         ]
       }
+      customers: {
+        Row: {
+          address: string | null
+          avg_ticket: number
+          city: string | null
+          created_at: string
+          email: string | null
+          first_order_at: string | null
+          id: string
+          last_order_at: string | null
+          loyalty_points: number
+          loyalty_tier: string | null
+          name: string
+          neighborhood: string | null
+          notes: string | null
+          phone: string
+          tags: string[] | null
+          tenant_id: string
+          total_orders: number
+          total_spent: number
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          avg_ticket?: number
+          city?: string | null
+          created_at?: string
+          email?: string | null
+          first_order_at?: string | null
+          id?: string
+          last_order_at?: string | null
+          loyalty_points?: number
+          loyalty_tier?: string | null
+          name: string
+          neighborhood?: string | null
+          notes?: string | null
+          phone: string
+          tags?: string[] | null
+          tenant_id: string
+          total_orders?: number
+          total_spent?: number
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          avg_ticket?: number
+          city?: string | null
+          created_at?: string
+          email?: string | null
+          first_order_at?: string | null
+          id?: string
+          last_order_at?: string | null
+          loyalty_points?: number
+          loyalty_tier?: string | null
+          name?: string
+          neighborhood?: string | null
+          notes?: string | null
+          phone?: string
+          tags?: string[] | null
+          tenant_id?: string
+          total_orders?: number
+          total_spent?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customers_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       delivery_drivers: {
         Row: {
           created_at: string
