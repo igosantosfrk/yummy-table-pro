@@ -172,6 +172,7 @@ const Marketing = () => {
 
       setCampaigns(result.campaigns || []);
       setSummary(result.summary || null);
+      setLastUpdated(new Date());
       if (result.errors?.length) setErrors(result.errors);
     } catch (e: any) {
       toast.error(e.message || 'Erro ao buscar campanhas');
