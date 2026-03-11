@@ -84,7 +84,7 @@ const PublicMenu = () => {
   }, [slug]);
 
   const handleSelectCategory = (category: Category) => {
-    // Check if this category has sub-categories (sizes)
+    trackPageView('category', category.id, category.name);
     const children = categories.filter(c => c.parent_id === category.id);
     if (children.length > 0) {
       setScreen({ type: 'sizes', parentCategory: category });
@@ -94,6 +94,7 @@ const PublicMenu = () => {
   };
 
   const handleSelectSubCategory = (category: Category) => {
+    trackPageView('category', category.id, category.name);
     setScreen({ type: 'products', category });
   };
 
