@@ -104,6 +104,7 @@ const Customers = () => {
   // Inactive filter
   const [inactivityDays, setInactivityDays] = useState(29);
   const [showInactiveOnly, setShowInactiveOnly] = useState(false);
+  const [filterDaysWithout, setFilterDaysWithout] = useState<number | null>(null);
 
   // Reactivation dialog
   const [reactivationOpen, setReactivationOpen] = useState(false);
