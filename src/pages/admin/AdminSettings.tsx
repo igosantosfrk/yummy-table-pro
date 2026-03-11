@@ -18,6 +18,7 @@ const AdminSettings = () => {
     address: '', city: '', state: '', zip_code: '',
     logo_url: '', banner_url: '', is_open: true,
     delivery_fee: '0', min_order_value: '0', avg_delivery_time_min: '45',
+    stripe_secret_key: '', stripe_publishable_key: '',
   });
 
   useEffect(() => {
