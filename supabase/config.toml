@@ -1,1 +1,4 @@
 project_id = "mqswmgbpgozzjyrbjcuz"
+
+[functions.fetch-ad-campaigns]
+verify_jwt = false

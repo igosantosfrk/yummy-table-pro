@@ -54,6 +54,8 @@ const Marketing = () => {
   const [loading, setLoading] = useState(false);
   const [adAccounts, setAdAccounts] = useState<AdAccount[]>([]);
   const [errors, setErrors] = useState<any[]>([]);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [autoRefresh, setAutoRefresh] = useState(true);
 
   // Form states
   const [metaToken, setMetaToken] = useState('');
@@ -70,6 +72,21 @@ const Marketing = () => {
       fetchAdAccounts();
     }
   }, [tenantId]);
+
+  // Auto-polling: fetch campaigns every 30s when on overview tab with accounts connected
+  useEffect(() => {
+    if (!tenantId || !autoRefresh || tab !== 'overview') return;
+    if (adAccounts.length === 0) return;
+
+    // Initial fetch
+    fetchCampaigns();
+
+    const interval = setInterval(() => {
+      fetchCampaigns();
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, [tenantId, autoRefresh, tab, adAccounts.length]);
 
   const fetchAdAccounts = async () => {
     if (!tenantId) return;
@@ -155,6 +172,7 @@ const Marketing = () => {
 
       setCampaigns(result.campaigns || []);
       setSummary(result.summary || null);
+      setLastUpdated(new Date());
       if (result.errors?.length) setErrors(result.errors);
     } catch (e: any) {
       toast.error(e.message || 'Erro ao buscar campanhas');
@@ -186,10 +204,24 @@ const Marketing = () => {
           </TabsList>
 
           {tab === 'overview' && hasAccounts && (
-            <Button onClick={fetchCampaigns} disabled={loading} size="sm">
-              <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-              Atualizar
-            </Button>
+            <div className="flex items-center gap-3">
+              {lastUpdated && (
+                <span className="text-xs text-muted-foreground">
+                  Atualizado: {lastUpdated.toLocaleTimeString('pt-BR')}
+                </span>
+              )}
+              <Button
+                variant={autoRefresh ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setAutoRefresh(!autoRefresh)}
+              >
+                {autoRefresh ? '⏸ Pausar' : '▶ Auto-refresh'}
+              </Button>
+              <Button onClick={fetchCampaigns} disabled={loading} size="sm" variant="outline">
+                <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+                Atualizar
+              </Button>
+            </div>
           )}
         </div>
 
