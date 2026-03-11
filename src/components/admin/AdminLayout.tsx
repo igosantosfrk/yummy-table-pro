@@ -13,6 +13,7 @@ import {
 const menuItems = [
   { path: '/admin', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/admin/orders', label: 'Pedidos', icon: ShoppingBag },
+  { path: '/admin/customers', label: 'Clientes', icon: Users },
   { path: '/admin/products', label: 'Produtos', icon: Package },
   { path: '/admin/categories', label: 'Categorias', icon: FolderOpen },
   { path: '/admin/delivery', label: 'Delivery', icon: Truck },
