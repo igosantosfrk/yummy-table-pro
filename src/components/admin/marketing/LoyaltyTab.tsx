@@ -609,7 +609,28 @@ const LoyaltyTab = ({ tenantId }: Props) => {
 
             <div>
               <Label>Pontos Necessários</Label>
-              <Input type="number" value={rPoints} onChange={e => setRPoints(e.target.value)} placeholder="100" />
+              <Input type="number" value={rPoints} onChange={e => {
+                const pts = e.target.value;
+                setRPoints(pts);
+                // Auto-calculate value based on program's points_per_real
+                const program = programs.find(p => p.id === rProgramId);
+                if (program && Number(pts) > 0) {
+                  const calculatedValue = Number(pts) / program.points_per_real;
+                  setRValue(String(calculatedValue));
+                }
+              }} placeholder="100" />
+              {(() => {
+                const program = programs.find(p => p.id === rProgramId);
+                if (program && Number(rPoints) > 0) {
+                  const calculatedValue = Number(rPoints) / program.points_per_real;
+                  return (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {Number(rPoints)} pontos = {formatCurrency(calculatedValue)} (1 pt = {formatCurrency(1 / program.points_per_real)})
+                    </p>
+                  );
+                }
+                return null;
+              })()}
             </div>
             <div className="flex items-center justify-between">
               <Label>Prêmio Ativo</Label>
