@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.create-cash-order]
 verify_jwt = false
+
+[functions.analyze-customer]
+verify_jwt = false
