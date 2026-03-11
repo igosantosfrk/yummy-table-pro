@@ -529,6 +529,11 @@ const Marketing = () => {
         <TabsContent value="loyalty">
           <LoyaltyTab tenantId={tenantId} />
         </TabsContent>
+
+        {/* WHATSAPP AUTOMATION TAB */}
+        <TabsContent value="whatsapp">
+          <WhatsAppAutomationTab tenantId={tenantId} />
+        </TabsContent>
       </Tabs>
     </div>
   );
