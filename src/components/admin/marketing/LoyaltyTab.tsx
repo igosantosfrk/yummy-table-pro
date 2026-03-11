@@ -39,6 +39,10 @@ interface CustomerSummary {
   total_spent: number; total_orders: number;
 }
 
+interface Product {
+  id: string; name: string; price: number; image_url: string | null; is_available: boolean;
+}
+
 interface Props { tenantId: string | null; }
 
 const LoyaltyTab = ({ tenantId }: Props) => {
