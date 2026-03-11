@@ -514,6 +514,16 @@ const Marketing = () => {
         <TabsContent value="links">
           <TrackingLinksTab tenantId={tenantId} />
         </TabsContent>
+
+        {/* COUPONS TAB */}
+        <TabsContent value="coupons">
+          <CouponsTab tenantId={tenantId} />
+        </TabsContent>
+
+        {/* LOYALTY TAB */}
+        <TabsContent value="loyalty">
+          <LoyaltyTab tenantId={tenantId} />
+        </TabsContent>
       </Tabs>
     </div>
   );
