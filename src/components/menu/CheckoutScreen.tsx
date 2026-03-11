@@ -13,7 +13,6 @@ interface Product {
   id: string;
   name: string;
   price: number;
-  [key: string]: unknown;
 }
 
 interface CartItem {
