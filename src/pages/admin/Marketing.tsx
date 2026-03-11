@@ -73,6 +73,21 @@ const Marketing = () => {
     }
   }, [tenantId]);
 
+  // Auto-polling: fetch campaigns every 30s when on overview tab with accounts connected
+  useEffect(() => {
+    if (!tenantId || !autoRefresh || tab !== 'overview') return;
+    if (adAccounts.length === 0) return;
+
+    // Initial fetch
+    fetchCampaigns();
+
+    const interval = setInterval(() => {
+      fetchCampaigns();
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, [tenantId, autoRefresh, tab, adAccounts.length]);
+
   const fetchAdAccounts = async () => {
     if (!tenantId) return;
     const { data } = await supabase
