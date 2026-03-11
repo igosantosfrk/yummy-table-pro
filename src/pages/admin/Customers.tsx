@@ -101,6 +101,10 @@ const Customers = () => {
   const [aiAnalysis, setAiAnalysis] = useState<string | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
 
+  // Loyalty transactions for dossier
+  const [loyaltyTxns, setLoyaltyTxns] = useState<{ id: string; type: string; points: number; description: string | null; created_at: string }[]>([]);
+  const [customerCouponUsage, setCustomerCouponUsage] = useState<{ id: string; discount_applied: number; order_total: number; used_at: string; coupon_id: string }[]>([]);
+
   // Inactive filter
   const [inactivityDays, setInactivityDays] = useState(29);
   const [showInactiveOnly, setShowInactiveOnly] = useState(false);
@@ -183,12 +187,30 @@ const Customers = () => {
     setDetailOpen(true);
     setExpandedOrder(null);
     setAiAnalysis(null);
+    setLoyaltyTxns([]);
+    setCustomerCouponUsage([]);
 
-    const { data } = await supabase.from('orders')
-      .select('id, order_number, total, subtotal, delivery_fee, discount, status, payment_method, payment_status, created_at, delivery_address, delivery_neighborhood, delivery_city, delivery_notes, notes, utm_source, utm_campaign, utm_medium, utm_content, utm_term, utm_ad_link, session_id, stripe_payment_intent_id')
-      .eq('tenant_id', tenantId!).eq('customer_phone', customer.phone)
-      .order('created_at', { ascending: false });
-    setOrderHistory((data as OrderHistory[]) || []);
+    // Fetch orders, loyalty transactions, coupon usage in parallel
+    const [ordersRes, loyaltyRes, couponUsageRes] = await Promise.all([
+      supabase.from('orders')
+        .select('id, order_number, total, subtotal, delivery_fee, discount, status, payment_method, payment_status, created_at, delivery_address, delivery_neighborhood, delivery_city, delivery_notes, notes, utm_source, utm_campaign, utm_medium, utm_content, utm_term, utm_ad_link, session_id, stripe_payment_intent_id')
+        .eq('tenant_id', tenantId!).eq('customer_phone', customer.phone)
+        .order('created_at', { ascending: false }),
+      supabase.from('loyalty_transactions')
+        .select('id, type, points, description, created_at')
+        .eq('customer_id', customer.id)
+        .order('created_at', { ascending: false })
+        .limit(20),
+      supabase.from('coupon_usage')
+        .select('id, discount_applied, order_total, used_at, coupon_id')
+        .eq('customer_phone', customer.phone)
+        .eq('tenant_id', tenantId!)
+        .order('used_at', { ascending: false })
+        .limit(20),
+    ]);
+    setOrderHistory((ordersRes.data as OrderHistory[]) || []);
+    setLoyaltyTxns((loyaltyRes.data as any[]) || []);
+    setCustomerCouponUsage((couponUsageRes.data as any[]) || []);
   };
 
   // ── AI analysis ──
@@ -635,7 +657,7 @@ const Customers = () => {
 
                   <Separator className="bg-border/20" />
 
-                  {/* Loyalty */}
+                  {/* Loyalty Section Enhanced */}
                   <div className="p-3 rounded-xl bg-gradient-to-br from-amber-500/10 to-yellow-600/5 border border-amber-500/15">
                     <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5 mb-2"><Gift className="h-3.5 w-3.5 text-amber-400" /> Fidelidade</span>
                     <div className="flex items-center justify-between">
@@ -647,7 +669,43 @@ const Customers = () => {
                         {selectedCustomer.loyalty_tier === 'bronze' ? 'Prata (500)' : selectedCustomer.loyalty_tier === 'silver' ? 'Ouro (1500)' : selectedCustomer.loyalty_tier === 'gold' ? 'Platina (5000)' : 'Máximo 🏆'}
                       </p>
                     </div>
+
+                    {/* Loyalty transactions */}
+                    {loyaltyTxns.length > 0 && (
+                      <div className="mt-3 space-y-1.5 max-h-32 overflow-y-auto">
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Histórico de Pontos</p>
+                        {loyaltyTxns.map(tx => (
+                          <div key={tx.id} className="flex justify-between items-center text-xs py-1 border-b border-border/10 last:border-0">
+                            <div>
+                              <span className={tx.type === 'earn' ? 'text-emerald-400' : 'text-destructive'}>
+                                {tx.type === 'earn' ? '+' : ''}{tx.points} pts
+                              </span>
+                              {tx.description && <span className="text-muted-foreground ml-1.5">{tx.description}</span>}
+                            </div>
+                            <span className="text-muted-foreground text-[10px]">{new Date(tx.created_at).toLocaleDateString('pt-BR')}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
+
+                  {/* Coupon usage history */}
+                  {customerCouponUsage.length > 0 && (
+                    <div className="p-3 rounded-xl bg-gradient-to-br from-primary/10 to-accent/5 border border-primary/10">
+                      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5 mb-2"><Ticket className="h-3.5 w-3.5 text-primary" /> Cupons Utilizados</span>
+                      <div className="space-y-1.5 max-h-32 overflow-y-auto">
+                        {customerCouponUsage.map(cu => (
+                          <div key={cu.id} className="flex justify-between items-center text-xs py-1 border-b border-border/10 last:border-0">
+                            <div>
+                              <span className="text-destructive">-R$ {Number(cu.discount_applied).toFixed(2).replace('.', ',')}</span>
+                              <span className="text-muted-foreground ml-1.5">em pedido de R$ {Number(cu.order_total).toFixed(2).replace('.', ',')}</span>
+                            </div>
+                            <span className="text-muted-foreground text-[10px]">{new Date(cu.used_at).toLocaleDateString('pt-BR')}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
                   <Separator className="bg-border/20" />
 

@@ -13,9 +13,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import {
   DollarSign, TrendingUp, Target, ShoppingCart, RefreshCw, Settings2,
-  Eye, MousePointer, ArrowUpRight, ArrowDownRight, Loader2, Plug, BarChart3, Link2
+  Eye, MousePointer, ArrowUpRight, ArrowDownRight, Loader2, Plug, BarChart3, Link2, Ticket, Crown
 } from 'lucide-react';
 import TrackingLinksTab from '@/components/admin/marketing/TrackingLinksTab';
+import CouponsTab from '@/components/admin/marketing/CouponsTab';
+import LoyaltyTab from '@/components/admin/marketing/LoyaltyTab';
 
 interface Campaign {
   id: string;
@@ -218,6 +220,14 @@ const Marketing = () => {
             <TabsTrigger value="links" className="gap-2">
               <Link2 className="h-4 w-4" />
               Links
+            </TabsTrigger>
+            <TabsTrigger value="coupons" className="gap-2">
+              <Ticket className="h-4 w-4" />
+              Cupons
+            </TabsTrigger>
+            <TabsTrigger value="loyalty" className="gap-2">
+              <Crown className="h-4 w-4" />
+              Fidelidade
             </TabsTrigger>
           </TabsList>
 
@@ -503,6 +513,16 @@ const Marketing = () => {
         {/* TRACKING LINKS TAB */}
         <TabsContent value="links">
           <TrackingLinksTab tenantId={tenantId} />
+        </TabsContent>
+
+        {/* COUPONS TAB */}
+        <TabsContent value="coupons">
+          <CouponsTab tenantId={tenantId} />
+        </TabsContent>
+
+        {/* LOYALTY TAB */}
+        <TabsContent value="loyalty">
+          <LoyaltyTab tenantId={tenantId} />
         </TabsContent>
       </Tabs>
     </div>
