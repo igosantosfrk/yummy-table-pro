@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import DateRangeFilter from '@/components/admin/DateRangeFilter';
+import { useDateRange } from '@/hooks/useDateRange';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -48,6 +50,7 @@ interface AdAccount {
 
 const Marketing = () => {
   const { tenantId } = useAuth();
+  const { preset, setPreset, dateRange, customRange, setCustomRange } = useDateRange('today');
   const [tab, setTab] = useState('overview');
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [summary, setSummary] = useState<Summary | null>(null);
@@ -190,6 +193,16 @@ const Marketing = () => {
 
   return (
     <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <h1 className="text-2xl font-display font-bold">Marketing</h1>
+        <DateRangeFilter
+          preset={preset}
+          onPresetChange={setPreset}
+          customRange={customRange}
+          onCustomRangeChange={setCustomRange}
+        />
+      </div>
+
       <Tabs value={tab} onValueChange={setTab}>
         <div className="flex items-center justify-between">
           <TabsList>

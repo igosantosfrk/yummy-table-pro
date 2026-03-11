@@ -4,7 +4,9 @@ import { motion } from 'framer-motion';
 import { ShoppingBag, DollarSign, Clock, TrendingUp, CheckCircle, XCircle, Truck, Package, Eye, MousePointerClick, BarChart3 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import DateRangeFilter from '@/components/admin/DateRangeFilter';
+import { useDateRange } from '@/hooks/useDateRange';
 
 interface DashboardStats {
   ordersToday: number;
@@ -43,6 +45,7 @@ const COLORS = ['hsl(var(--primary))', 'hsl(var(--accent))', '#10b981', '#f59e0b
 
 const Dashboard = () => {
   const { profile } = useAuth();
+  const { preset, setPreset, dateRange, customRange, setCustomRange } = useDateRange('today');
   const [stats, setStats] = useState<DashboardStats>({
     ordersToday: 0, revenue: 0, preparing: 0, outForDelivery: 0,
     completed: 0, cancelled: 0, avgTicket: 0, activeProducts: 0,
@@ -55,19 +58,21 @@ const Dashboard = () => {
   useEffect(() => {
     if (!profile?.tenant_id) return;
     const tenantId = profile.tenant_id;
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const todayISO = today.toISOString();
+    const fromISO = dateRange.from.toISOString();
+    const toISO = dateRange.to.toISOString();
 
     const loadAll = async () => {
-      // Orders today
-      const { data: todayOrders } = await supabase
+      setLoading(true);
+
+      // Orders in range
+      const { data: rangeOrders } = await supabase
         .from('orders')
         .select('id, total, status, created_at, utm_source')
         .eq('tenant_id', tenantId)
-        .gte('created_at', todayISO);
+        .gte('created_at', fromISO)
+        .lte('created_at', toISO);
 
-      const orders = todayOrders || [];
+      const orders = rangeOrders || [];
       const revenue = orders.filter(o => o.status !== 'cancelled').reduce((s, o) => s + Number(o.total), 0);
       const preparing = orders.filter(o => o.status === 'preparing').length;
       const outForDelivery = orders.filter(o => o.status === 'out_for_delivery').length;
@@ -76,7 +81,6 @@ const Dashboard = () => {
       const validOrders = orders.filter(o => o.status !== 'cancelled');
       const avgTicket = validOrders.length > 0 ? revenue / validOrders.length : 0;
 
-      // Active products count
       const { count: activeProducts } = await supabase
         .from('products')
         .select('id', { count: 'exact', head: true })
@@ -84,35 +88,27 @@ const Dashboard = () => {
         .eq('is_available', true);
 
       setStats({
-        ordersToday: orders.length,
-        revenue,
-        preparing,
-        outForDelivery,
-        completed,
-        cancelled,
-        avgTicket,
-        activeProducts: activeProducts || 0,
+        ordersToday: orders.length, revenue, preparing, outForDelivery,
+        completed, cancelled, avgTicket, activeProducts: activeProducts || 0,
       });
 
-      // UTM Analytics - last 30 days
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
+      // UTM Analytics in range
       const { data: utmViews } = await supabase
         .from('menu_page_views' as any)
         .select('utm_source, id')
         .eq('tenant_id', tenantId)
-        .gte('created_at', thirtyDaysAgo.toISOString())
+        .gte('created_at', fromISO)
+        .lte('created_at', toISO)
         .not('utm_source', 'is', null);
 
       const { data: utmOrders } = await supabase
         .from('orders')
         .select('utm_source, total')
         .eq('tenant_id', tenantId)
-        .gte('created_at', thirtyDaysAgo.toISOString())
+        .gte('created_at', fromISO)
+        .lte('created_at', toISO)
         .not('utm_source', 'is', null);
 
-      // Group by utm_source
       const utmMap = new Map<string, UtmStats>();
       (utmViews as any[] || []).forEach((v: any) => {
         const src = v.utm_source || 'direto';
@@ -129,14 +125,13 @@ const Dashboard = () => {
       });
       setUtmData(Array.from(utmMap.values()).sort((a, b) => b.revenue - a.revenue));
 
-      // Page views by type - last 7 days
-      const sevenDaysAgo = new Date();
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      // Page views in range
       const { data: pvData } = await supabase
         .from('menu_page_views' as any)
         .select('page_type')
         .eq('tenant_id', tenantId)
-        .gte('created_at', sevenDaysAgo.toISOString());
+        .gte('created_at', fromISO)
+        .lte('created_at', toISO);
 
       const pvMap = new Map<string, number>();
       (pvData as any[] || []).forEach((pv: any) => {
@@ -149,10 +144,8 @@ const Dashboard = () => {
       for (let i = 6; i >= 0; i--) {
         const d = new Date();
         d.setDate(d.getDate() - i);
-        const dayStart = new Date(d);
-        dayStart.setHours(0, 0, 0, 0);
-        const dayEnd = new Date(d);
-        dayEnd.setHours(23, 59, 59, 999);
+        const dayStart = new Date(d); dayStart.setHours(0, 0, 0, 0);
+        const dayEnd = new Date(d); dayEnd.setHours(23, 59, 59, 999);
 
         const { data: dayOrders } = await supabase
           .from('orders')
@@ -173,7 +166,7 @@ const Dashboard = () => {
     };
 
     loadAll();
-  }, [profile?.tenant_id]);
+  }, [profile?.tenant_id, dateRange.from.getTime(), dateRange.to.getTime()]);
 
   const pageTypeLabels: Record<string, string> = {
     menu_home: 'Página Inicial',
@@ -185,7 +178,7 @@ const Dashboard = () => {
   };
 
   const statCards = [
-    { label: 'Pedidos Hoje', value: stats.ordersToday.toString(), icon: ShoppingBag, color: 'text-primary' },
+    { label: 'Pedidos', value: stats.ordersToday.toString(), icon: ShoppingBag, color: 'text-primary' },
     { label: 'Faturamento', value: `R$ ${stats.revenue.toFixed(2).replace('.', ',')}`, icon: DollarSign, color: 'text-success' },
     { label: 'Em Preparo', value: stats.preparing.toString(), icon: Clock, color: 'text-warning' },
     { label: 'Em Entrega', value: stats.outForDelivery.toString(), icon: Truck, color: 'text-info' },
@@ -197,28 +190,29 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-display font-bold text-foreground">
-          Olá, {profile?.full_name?.split(' ')[0] || 'Admin'} 👋
-        </h1>
-        <p className="text-muted-foreground mt-1">
-          Aqui está o resumo do seu restaurante hoje.
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-display font-bold text-foreground">
+            Olá, {profile?.full_name?.split(' ')[0] || 'Admin'} 👋
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            Aqui está o resumo do seu restaurante.
+          </p>
+        </div>
+        <DateRangeFilter
+          preset={preset}
+          onPresetChange={setPreset}
+          customRange={customRange}
+          onCustomRangeChange={setCustomRange}
+        />
       </div>
 
-      <motion.div
-        variants={container}
-        initial="hidden"
-        animate="show"
-        className="grid grid-cols-2 lg:grid-cols-4 gap-4"
-      >
+      <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {statCards.map((stat) => (
           <motion.div key={stat.label} variants={item}>
             <Card className="glass hover:shadow-glow-sm transition-all duration-300 cursor-default">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  {stat.label}
-                </CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">{stat.label}</CardTitle>
                 <stat.icon className={`h-4 w-4 ${stat.color}`} />
               </CardHeader>
               <CardContent>
@@ -229,7 +223,6 @@ const Dashboard = () => {
         ))}
       </motion.div>
 
-      {/* Charts Row */}
       <div className="grid lg:grid-cols-2 gap-6">
         <Card className="glass">
           <CardHeader>
@@ -268,7 +261,7 @@ const Dashboard = () => {
           <CardHeader>
             <CardTitle className="font-display flex items-center gap-2">
               <Eye className="h-5 w-5 text-primary" />
-              Funil do Cardápio (7 dias)
+              Funil do Cardápio
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -304,12 +297,11 @@ const Dashboard = () => {
         </Card>
       </div>
 
-      {/* UTM Analytics */}
       <Card className="glass">
         <CardHeader>
           <CardTitle className="font-display flex items-center gap-2">
             <MousePointerClick className="h-5 w-5 text-primary" />
-            Rastreamento de Campanhas (30 dias)
+            Rastreamento de Campanhas
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -344,7 +336,7 @@ const Dashboard = () => {
             </div>
           ) : (
             <div className="h-32 flex items-center justify-center text-muted-foreground">
-              {loading ? 'Carregando...' : 'Nenhum dado de campanha registrado. Adicione parâmetros UTM nos links dos seus anúncios.'}
+              {loading ? 'Carregando...' : 'Nenhum dado de campanha registrado.'}
             </div>
           )}
         </CardContent>

@@ -7,6 +7,8 @@ import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
 import { ShoppingBag, Clock, Truck, CheckCircle, XCircle, ChefHat } from 'lucide-react';
 import type { Database } from '@/integrations/supabase/types';
+import DateRangeFilter from '@/components/admin/DateRangeFilter';
+import { useDateRange } from '@/hooks/useDateRange';
 
 type OrderStatus = Database['public']['Enums']['order_status'];
 
@@ -36,6 +38,7 @@ const columns: OrderStatus[] = ['preparing', 'out_for_delivery', 'completed'];
 
 const Orders = () => {
   const { tenantId } = useAuth();
+  const { preset, setPreset, dateRange, customRange, setCustomRange } = useDateRange('today');
   const [orders, setOrders] = useState<Order[]>([]);
 
   const fetchOrders = async () => {
@@ -44,6 +47,8 @@ const Orders = () => {
       .from('orders')
       .select('*')
       .eq('tenant_id', tenantId)
+      .gte('created_at', dateRange.from.toISOString())
+      .lte('created_at', dateRange.to.toISOString())
       .order('created_at', { ascending: true });
     setOrders(data || []);
   };
@@ -51,7 +56,6 @@ const Orders = () => {
   useEffect(() => {
     fetchOrders();
 
-    // Realtime subscription
     const channel = supabase
       .channel('orders-realtime')
       .on('postgres_changes', {
@@ -65,7 +69,7 @@ const Orders = () => {
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [tenantId]);
+  }, [tenantId, dateRange.from.getTime(), dateRange.to.getTime()]);
 
   const updateStatus = async (orderId: string, newStatus: OrderStatus) => {
     await supabase.from('orders').update({ status: newStatus }).eq('id', orderId);
@@ -80,16 +84,24 @@ const Orders = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-display font-bold">Pedidos</h1>
-        <p className="text-muted-foreground">{orders.length} pedidos total</p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-display font-bold">Pedidos</h1>
+          <p className="text-muted-foreground">{orders.length} pedidos no período</p>
+        </div>
+        <DateRangeFilter
+          preset={preset}
+          onPresetChange={setPreset}
+          customRange={customRange}
+          onCustomRangeChange={setCustomRange}
+        />
       </div>
 
       {orders.length === 0 ? (
         <Card className="glass">
           <CardContent className="flex flex-col items-center justify-center py-16">
             <ShoppingBag className="h-12 w-12 text-muted-foreground mb-4" />
-            <p className="text-lg font-medium text-muted-foreground">Nenhum pedido ainda</p>
+            <p className="text-lg font-medium text-muted-foreground">Nenhum pedido no período</p>
             <p className="text-sm text-muted-foreground">Os pedidos aparecerão aqui em tempo real</p>
           </CardContent>
         </Card>
