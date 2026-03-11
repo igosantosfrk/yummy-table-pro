@@ -15,7 +15,7 @@ interface DateRangeFilterProps {
   onCustomRangeChange: (range: { from?: Date; to?: Date }) => void;
 }
 
-const presetOptions: DatePreset[] = ['today', 'yesterday', 'last7', 'thisMonth', 'lastMonth', 'custom'];
+const presetOptions: DatePreset[] = ['today', 'yesterday', 'last7', 'thisMonth', 'lastMonth', 'max', 'custom'];
 
 export default function DateRangeFilter({
   preset,
