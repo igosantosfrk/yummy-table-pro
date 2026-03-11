@@ -520,6 +520,14 @@ const Customers = () => {
                         <td className="py-3 px-3 text-right"><span className="font-bold text-emerald-400">R$ {Number(customer.total_spent).toFixed(2).replace('.', ',')}</span></td>
                         <td className="py-3 px-3 text-right hidden lg:table-cell"><span className="text-sm">R$ {Number(customer.avg_ticket).toFixed(2).replace('.', ',')}</span></td>
                         <td className="py-3 px-3 text-right hidden sm:table-cell"><span className="text-xs text-muted-foreground">{customer.last_order_at ? new Date(customer.last_order_at).toLocaleDateString('pt-BR') : '—'}</span></td>
+                        <td className="py-3 px-3 text-center hidden sm:table-cell">
+                          {(() => {
+                            const days = getDaysSinceLastOrder(customer);
+                            if (days === null) return <span className="text-xs text-muted-foreground">—</span>;
+                            const color = days >= 60 ? 'text-red-400' : days >= 30 ? 'text-orange-400' : days >= 10 ? 'text-amber-400' : 'text-emerald-400';
+                            return <span className={`text-xs font-semibold ${color}`}>{days}d</span>;
+                          })()}
+                        </td>
                         <td className="py-3 px-3 text-center hidden lg:table-cell"><Badge variant="outline" className="text-[10px] px-1.5"><Star className="h-3 w-3 mr-0.5 text-amber-400" />{customer.loyalty_points}</Badge></td>
                       </tr>
                     );
