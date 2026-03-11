@@ -246,7 +246,10 @@ const Customers = () => {
     if (!selectedCustomer) return;
     setSaving(true);
     const tags = editTags.split(',').map(t => t.trim()).filter(Boolean);
-    await supabase.from('customers').update({ notes: editNotes, email: editEmail || null, tags }).eq('id', selectedCustomer.id);
+    await supabase.from('customers').update({
+      notes: editNotes, email: editEmail || null, tags,
+      birthday: editBirthday || null,
+    }).eq('id', selectedCustomer.id);
     toast.success('Cliente atualizado');
     setSaving(false);
     fetchCustomers();
