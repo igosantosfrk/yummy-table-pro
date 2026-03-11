@@ -6,6 +6,7 @@ import CategoryListScreen from '@/components/menu/CategoryListScreen';
 import SizeSelectionScreen from '@/components/menu/SizeSelectionScreen';
 import ProductListScreen from '@/components/menu/ProductListScreen';
 import CartSheet from '@/components/menu/CartSheet';
+import { useMenuTracking } from '@/hooks/useMenuTracking';
 
 interface Tenant {
   id: string;
