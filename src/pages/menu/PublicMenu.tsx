@@ -63,6 +63,8 @@ const PublicMenu = () => {
   const [cartOpen, setCartOpen] = useState(false);
   const [screen, setScreen] = useState<Screen>({ type: 'categories' });
 
+  const { trackPageView, sessionId, utmParams } = useMenuTracking(tenant?.id || null);
+
   useEffect(() => {
     const load = async () => {
       if (!slug) return;
