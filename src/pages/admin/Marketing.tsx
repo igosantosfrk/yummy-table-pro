@@ -54,6 +54,8 @@ const Marketing = () => {
   const [loading, setLoading] = useState(false);
   const [adAccounts, setAdAccounts] = useState<AdAccount[]>([]);
   const [errors, setErrors] = useState<any[]>([]);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [autoRefresh, setAutoRefresh] = useState(true);
 
   // Form states
   const [metaToken, setMetaToken] = useState('');
