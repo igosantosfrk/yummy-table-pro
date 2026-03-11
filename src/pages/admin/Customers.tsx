@@ -104,6 +104,7 @@ const Customers = () => {
   // Inactive filter
   const [inactivityDays, setInactivityDays] = useState(29);
   const [showInactiveOnly, setShowInactiveOnly] = useState(false);
+  const [filterDaysWithout, setFilterDaysWithout] = useState<number | null>(null);
 
   // Reactivation dialog
   const [reactivationOpen, setReactivationOpen] = useState(false);
@@ -235,12 +236,24 @@ const Customers = () => {
     });
   }, [customers, inactivityDays]);
 
+  // Helper: days since last order
+  const getDaysSinceLastOrder = (customer: Customer): number | null => {
+    if (!customer.last_order_at) return null;
+    return Math.floor((Date.now() - new Date(customer.last_order_at).getTime()) / (1000 * 60 * 60 * 24));
+  };
+
   // ── Filtered list ──
   const filtered = useMemo(() => {
     let list = showInactiveOnly ? [...inactiveCustomers] : [...customers];
     if (search) {
       const q = search.toLowerCase();
       list = list.filter(c => c.name.toLowerCase().includes(q) || c.phone.includes(q) || (c.email || '').toLowerCase().includes(q));
+    }
+    if (filterDaysWithout !== null) {
+      list = list.filter(c => {
+        const days = getDaysSinceLastOrder(c);
+        return days === null || days >= filterDaysWithout;
+      });
     }
     list.sort((a, b) => {
       let va: any = a[sortField]; let vb: any = b[sortField];
@@ -251,7 +264,7 @@ const Customers = () => {
       return 0;
     });
     return list;
-  }, [customers, inactiveCustomers, showInactiveOnly, search, sortField, sortAsc]);
+  }, [customers, inactiveCustomers, showInactiveOnly, search, sortField, sortAsc, filterDaysWithout]);
 
   // ── KPIs ──
   const totalCustomers = customers.length;
@@ -426,15 +439,30 @@ const Customers = () => {
         </motion.div>
       )}
 
-      {/* Search */}
-      <div className="flex gap-2">
-        <div className="relative flex-1">
+      {/* Search + Filters */}
+      <div className="flex gap-2 flex-wrap">
+        <div className="relative flex-1 min-w-[200px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input placeholder="Buscar por nome, telefone ou email..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 bg-muted/20 border-border/20" />
         </div>
-        {showInactiveOnly && (
-          <Button variant="outline" size="sm" className="border-orange-500/30 text-orange-400" onClick={() => setShowInactiveOnly(false)}>
-            <X className="h-3.5 w-3.5 mr-1" /> Limpar filtro
+        <Select value={filterDaysWithout?.toString() || 'all'} onValueChange={v => setFilterDaysWithout(v === 'all' ? null : parseInt(v))}>
+          <SelectTrigger className="w-[180px] bg-muted/20 border-border/20 text-sm">
+            <Clock className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
+            <SelectValue placeholder="Dias sem pedir" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos os clientes</SelectItem>
+            <SelectItem value="10">+10 dias sem pedir</SelectItem>
+            <SelectItem value="30">+30 dias sem pedir</SelectItem>
+            <SelectItem value="45">+45 dias sem pedir</SelectItem>
+            <SelectItem value="60">+60 dias sem pedir</SelectItem>
+            <SelectItem value="90">+90 dias sem pedir</SelectItem>
+            <SelectItem value="180">+180 dias sem pedir</SelectItem>
+          </SelectContent>
+        </Select>
+        {(showInactiveOnly || filterDaysWithout !== null) && (
+          <Button variant="outline" size="sm" className="border-orange-500/30 text-orange-400" onClick={() => { setShowInactiveOnly(false); setFilterDaysWithout(null); }}>
+            <X className="h-3.5 w-3.5 mr-1" /> Limpar filtros
           </Button>
         )}
       </div>
@@ -469,6 +497,7 @@ const Customers = () => {
                     <th className="text-right py-3 px-3 text-muted-foreground font-medium text-xs uppercase tracking-wider hidden sm:table-cell">
                       <button onClick={() => handleSort('last_order_at')} className="flex items-center gap-1 hover:text-foreground transition-colors ml-auto">Último Pedido <SortIcon field="last_order_at" /></button>
                     </th>
+                    <th className="text-center py-3 px-3 text-muted-foreground font-medium text-xs uppercase tracking-wider hidden sm:table-cell">Dias s/ Pedir</th>
                     <th className="text-center py-3 px-3 text-muted-foreground font-medium text-xs uppercase tracking-wider hidden lg:table-cell">
                       <button onClick={() => handleSort('loyalty_points')} className="flex items-center gap-1 hover:text-foreground transition-colors mx-auto">Pontos <SortIcon field="loyalty_points" /></button>
                     </th>
@@ -491,6 +520,14 @@ const Customers = () => {
                         <td className="py-3 px-3 text-right"><span className="font-bold text-emerald-400">R$ {Number(customer.total_spent).toFixed(2).replace('.', ',')}</span></td>
                         <td className="py-3 px-3 text-right hidden lg:table-cell"><span className="text-sm">R$ {Number(customer.avg_ticket).toFixed(2).replace('.', ',')}</span></td>
                         <td className="py-3 px-3 text-right hidden sm:table-cell"><span className="text-xs text-muted-foreground">{customer.last_order_at ? new Date(customer.last_order_at).toLocaleDateString('pt-BR') : '—'}</span></td>
+                        <td className="py-3 px-3 text-center hidden sm:table-cell">
+                          {(() => {
+                            const days = getDaysSinceLastOrder(customer);
+                            if (days === null) return <span className="text-xs text-muted-foreground">—</span>;
+                            const color = days >= 60 ? 'text-red-400' : days >= 30 ? 'text-orange-400' : days >= 10 ? 'text-amber-400' : 'text-emerald-400';
+                            return <span className={`text-xs font-semibold ${color}`}>{days}d</span>;
+                          })()}
+                        </td>
                         <td className="py-3 px-3 text-center hidden lg:table-cell"><Badge variant="outline" className="text-[10px] px-1.5"><Star className="h-3 w-3 mr-0.5 text-amber-400" />{customer.loyalty_points}</Badge></td>
                       </tr>
                     );
