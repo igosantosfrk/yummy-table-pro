@@ -194,6 +194,11 @@ export default function OrderDetailSheet({ order, open, onOpenChange, onStatusCh
           {/* Status Actions */}
           {order.status !== 'completed' && order.status !== 'cancelled' && (
             <div className="flex gap-2 pt-2">
+              {order.status === 'new' && (
+                <Button className="flex-1 gradient-primary" onClick={() => { onStatusChange(order.id, 'preparing'); onOpenChange(false); }}>
+                  Aceitar Pedido
+                </Button>
+              )}
               {order.status === 'preparing' && (
                 <Button className="flex-1 gradient-primary" onClick={() => { onStatusChange(order.id, 'out_for_delivery'); onOpenChange(false); }}>
                   <Truck className="h-4 w-4 mr-2" />

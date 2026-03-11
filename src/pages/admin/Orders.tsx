@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
-import { ShoppingBag, LayoutGrid, List, ChefHat, Truck, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { ShoppingBag, LayoutGrid, List, ChefHat, Truck, CheckCircle, XCircle, Clock, Sparkles } from 'lucide-react';
 import DateRangeFilter from '@/components/admin/DateRangeFilter';
 import { useDateRange } from '@/hooks/useDateRange';
 import { Order, OrderStatus, statusConfig, kanbanColumns } from '@/components/admin/orders/types';
@@ -17,9 +17,11 @@ import OrderListView from '@/components/admin/orders/OrderListView';
 type ViewMode = 'kanban' | 'list';
 
 const columnIcons: Record<string, React.ElementType> = {
+  new: Sparkles,
   preparing: ChefHat,
   out_for_delivery: Truck,
   completed: CheckCircle,
+  cancelled: XCircle,
 };
 
 const Orders = () => {
@@ -81,6 +83,7 @@ const Orders = () => {
   // Status summary
   const counts = {
     all: orders.length,
+    new: orders.filter(o => o.status === 'new').length,
     preparing: orders.filter(o => o.status === 'preparing').length,
     out_for_delivery: orders.filter(o => o.status === 'out_for_delivery').length,
     completed: orders.filter(o => o.status === 'completed').length,
@@ -132,6 +135,7 @@ const Orders = () => {
       <div className="flex flex-wrap gap-2">
         {([
           { key: 'all' as const, label: 'Todos', icon: ShoppingBag, count: counts.all },
+          { key: 'new' as const, label: 'Novos', icon: Sparkles, count: counts.new },
           { key: 'preparing' as const, label: 'Em Preparo', icon: ChefHat, count: counts.preparing },
           { key: 'out_for_delivery' as const, label: 'Em Entrega', icon: Truck, count: counts.out_for_delivery },
           { key: 'completed' as const, label: 'Finalizados', icon: CheckCircle, count: counts.completed },
@@ -167,7 +171,7 @@ const Orders = () => {
           </CardContent>
         </Card>
       ) : viewMode === 'kanban' ? (
-        <div className="grid lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
           {kanbanColumns.map(status => {
             const config = statusConfig[status];
             const Icon = columnIcons[status] || Clock;

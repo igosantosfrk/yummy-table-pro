@@ -64,7 +64,7 @@ export const paymentStatusLabels: Record<PaymentStatus, string> = {
   refunded: 'Reembolsado',
 };
 
-export const kanbanColumns: OrderStatus[] = ['preparing', 'out_for_delivery', 'completed'];
+export const kanbanColumns: OrderStatus[] = ['new', 'preparing', 'out_for_delivery', 'completed', 'cancelled'];
 
 export function getTimeAgo(date: string) {
   const mins = Math.floor((Date.now() - new Date(date).getTime()) / 60000);
