@@ -499,6 +499,11 @@ const Marketing = () => {
             </>
           )}
         </TabsContent>
+
+        {/* TRACKING LINKS TAB */}
+        <TabsContent value="links">
+          <TrackingLinksTab tenantId={tenantId} />
+        </TabsContent>
       </Tabs>
     </div>
   );
