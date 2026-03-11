@@ -186,6 +186,7 @@ const Customers = () => {
     setEditNotes(customer.notes || '');
     setEditEmail(customer.email || '');
     setEditTags((customer.tags || []).join(', '));
+    setEditBirthday(customer.birthday || '');
     setDetailOpen(true);
     setExpandedOrder(null);
     setAiAnalysis(null);
