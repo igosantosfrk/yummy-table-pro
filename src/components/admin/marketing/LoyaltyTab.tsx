@@ -148,6 +148,7 @@ const LoyaltyTab = ({ tenantId }: Props) => {
     setEditingReward(null);
     setRName(''); setRDesc(''); setRType('cashback'); setRValue(''); setRPoints('100'); setRActive(true);
     setRProgramId(programs[0]?.id || '');
+    setSelectedProduct(null);
     setRewardDialogOpen(true);
   };
 
@@ -156,8 +157,51 @@ const LoyaltyTab = ({ tenantId }: Props) => {
     setRName(r.name); setRDesc(r.description || ''); setRType(r.reward_type);
     setRValue(String(r.reward_value)); setRPoints(String(r.points_required));
     setRProgramId(r.program_id); setRActive(r.is_active);
+    setSelectedProduct(null);
     setRewardDialogOpen(true);
   };
+
+  const fetchProducts = async () => {
+    if (!tenantId) return;
+    setLoadingProducts(true);
+    const { data } = await supabase
+      .from('products')
+      .select('id, name, price, image_url, is_available')
+      .eq('tenant_id', tenantId)
+      .eq('is_available', true)
+      .order('name');
+    setProducts((data || []) as Product[]);
+    setLoadingProducts(false);
+  };
+
+  const openProductPicker = () => {
+    setProductSearch('');
+    fetchProducts();
+    setProductPickerOpen(true);
+  };
+
+  const selectProduct = (product: Product) => {
+    setSelectedProduct(product);
+    setRName(product.name);
+    setRDesc(product.name);
+    setRValue(String(product.price));
+    setProductPickerOpen(false);
+  };
+
+  const handleRewardTypeChange = (type: string) => {
+    setRType(type);
+    if (type === 'free_product') {
+      openProductPicker();
+    } else {
+      setSelectedProduct(null);
+    }
+  };
+
+  const filteredProducts = useMemo(() => {
+    if (!productSearch.trim()) return products;
+    const q = productSearch.toLowerCase();
+    return products.filter(p => p.name.toLowerCase().includes(q));
+  }, [products, productSearch]);
 
   const saveReward = async () => {
     if (!tenantId || !rName.trim() || !rProgramId) { toast.error('Preencha todos os campos'); return; }
