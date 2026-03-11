@@ -691,6 +691,68 @@ export type Database = {
         }
         Relationships: []
       }
+      tracking_links: {
+        Row: {
+          clicks: number
+          created_at: string
+          full_url: string
+          id: string
+          is_active: boolean
+          name: string
+          short_code: string | null
+          tenant_id: string
+          updated_at: string
+          utm_ad_link: string | null
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          utm_term: string | null
+        }
+        Insert: {
+          clicks?: number
+          created_at?: string
+          full_url: string
+          id?: string
+          is_active?: boolean
+          name: string
+          short_code?: string | null
+          tenant_id: string
+          updated_at?: string
+          utm_ad_link?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+        }
+        Update: {
+          clicks?: number
+          created_at?: string
+          full_url?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          short_code?: string | null
+          tenant_id?: string
+          updated_at?: string
+          utm_ad_link?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tracking_links_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           id: string
