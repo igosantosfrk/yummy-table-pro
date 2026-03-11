@@ -17,6 +17,7 @@ import Payments from "@/pages/admin/Payments";
 import WhatsApp from "@/pages/admin/WhatsApp";
 import AdminSettings from "@/pages/admin/AdminSettings";
 import Marketing from "@/pages/admin/Marketing";
+import Customers from "@/pages/admin/Customers";
 import PublicMenu from "@/pages/menu/PublicMenu";
 import NotFound from "./pages/NotFound";
 
