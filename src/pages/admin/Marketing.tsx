@@ -13,9 +13,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import {
   DollarSign, TrendingUp, Target, ShoppingCart, RefreshCw, Settings2,
-  Eye, MousePointer, ArrowUpRight, ArrowDownRight, Loader2, Plug, BarChart3, Link2
+  Eye, MousePointer, ArrowUpRight, ArrowDownRight, Loader2, Plug, BarChart3, Link2, Ticket, Crown
 } from 'lucide-react';
 import TrackingLinksTab from '@/components/admin/marketing/TrackingLinksTab';
+import CouponsTab from '@/components/admin/marketing/CouponsTab';
+import LoyaltyTab from '@/components/admin/marketing/LoyaltyTab';
 
 interface Campaign {
   id: string;
