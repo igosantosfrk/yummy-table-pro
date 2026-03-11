@@ -7,12 +7,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard, Package, FolderOpen, ShoppingBag, Truck, Settings,
   MessageSquare, CreditCard, LogOut, Menu, X, UtensilsCrossed, ChevronRight,
-  Shield, Megaphone
+  Shield, Megaphone, Users
 } from 'lucide-react';
 
 const menuItems = [
   { path: '/admin', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/admin/orders', label: 'Pedidos', icon: ShoppingBag },
+  { path: '/admin/customers', label: 'Clientes', icon: Users },
   { path: '/admin/products', label: 'Produtos', icon: Package },
   { path: '/admin/categories', label: 'Categorias', icon: FolderOpen },
   { path: '/admin/delivery', label: 'Delivery', icon: Truck },

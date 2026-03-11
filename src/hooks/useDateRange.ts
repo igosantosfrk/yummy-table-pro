@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { startOfDay, endOfDay, subDays, startOfMonth, endOfMonth, subMonths } from 'date-fns';
 
-export type DatePreset = 'today' | 'yesterday' | 'last7' | 'thisMonth' | 'lastMonth' | 'custom';
+export type DatePreset = 'today' | 'yesterday' | 'last7' | 'thisMonth' | 'lastMonth' | 'max' | 'custom';
 
 export interface DateRange {
   from: Date;
@@ -14,6 +14,7 @@ export const presetLabels: Record<DatePreset, string> = {
   last7: 'Últimos 7 dias',
   thisMonth: 'Este mês',
   lastMonth: 'Mês passado',
+  max: 'Máximo',
   custom: 'Personalizado',
 };
 
@@ -34,6 +35,8 @@ function getPresetRange(preset: DatePreset): DateRange {
       const lm = subMonths(now, 1);
       return { from: startOfMonth(lm), to: endOfMonth(lm) };
     }
+    case 'max':
+      return { from: new Date(2020, 0, 1), to: endOfDay(now) };
     default:
       return { from: startOfDay(now), to: endOfDay(now) };
   }
