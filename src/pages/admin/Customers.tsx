@@ -199,12 +199,19 @@ const Customers = () => {
       const { data, error } = await supabase.functions.invoke('analyze-customer', {
         body: { customer_phone: selectedCustomer.phone, tenant_id: tenantId },
       });
-      if (error) throw error;
+      console.log('AI analysis response:', { data, error });
+      if (error) {
+        // supabase.functions.invoke wraps non-2xx as FunctionsHttpError
+        const errorBody = typeof error === 'object' && 'context' in error ? await (error as any).context?.json?.() : null;
+        toast.error(errorBody?.error || 'Erro ao analisar cliente');
+        setAiLoading(false);
+        return;
+      }
       if (data?.error) { toast.error(data.error); setAiLoading(false); return; }
-      setAiAnalysis(data.analysis);
+      setAiAnalysis(data?.analysis || 'Sem dados para análise.');
     } catch (e: any) {
-      toast.error('Erro ao analisar cliente');
-      console.error(e);
+      toast.error('Erro ao analisar cliente: ' + (e?.message || 'erro desconhecido'));
+      console.error('AI analysis error:', e);
     }
     setAiLoading(false);
   };
