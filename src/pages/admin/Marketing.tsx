@@ -221,6 +221,14 @@ const Marketing = () => {
               <Link2 className="h-4 w-4" />
               Links
             </TabsTrigger>
+            <TabsTrigger value="coupons" className="gap-2">
+              <Ticket className="h-4 w-4" />
+              Cupons
+            </TabsTrigger>
+            <TabsTrigger value="loyalty" className="gap-2">
+              <Crown className="h-4 w-4" />
+              Fidelidade
+            </TabsTrigger>
           </TabsList>
 
           {tab === 'overview' && hasAccounts && (
