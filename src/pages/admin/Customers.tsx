@@ -497,6 +497,7 @@ const Customers = () => {
                     <th className="text-right py-3 px-3 text-muted-foreground font-medium text-xs uppercase tracking-wider hidden sm:table-cell">
                       <button onClick={() => handleSort('last_order_at')} className="flex items-center gap-1 hover:text-foreground transition-colors ml-auto">Último Pedido <SortIcon field="last_order_at" /></button>
                     </th>
+                    <th className="text-center py-3 px-3 text-muted-foreground font-medium text-xs uppercase tracking-wider hidden sm:table-cell">Dias s/ Pedir</th>
                     <th className="text-center py-3 px-3 text-muted-foreground font-medium text-xs uppercase tracking-wider hidden lg:table-cell">
                       <button onClick={() => handleSort('loyalty_points')} className="flex items-center gap-1 hover:text-foreground transition-colors mx-auto">Pontos <SortIcon field="loyalty_points" /></button>
                     </th>
