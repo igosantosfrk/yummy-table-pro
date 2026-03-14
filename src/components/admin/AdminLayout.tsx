@@ -37,7 +37,7 @@ const AdminLayout = () => {
   };
 
   return (
-    <div className="flex h-screen bg-background dark">
+    <div className="flex h-screen bg-background text-foreground dark">
       {/* Mobile overlay */}
       <AnimatePresence>
         {sidebarOpen && (

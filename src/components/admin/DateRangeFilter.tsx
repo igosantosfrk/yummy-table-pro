@@ -26,9 +26,9 @@ export default function DateRangeFilter({
   return (
     <div className="flex items-center gap-2 flex-wrap">
       <Select value={preset} onValueChange={(v) => onPresetChange(v as DatePreset)}>
-        <SelectTrigger className="w-[180px] h-9">
+        <SelectTrigger className="w-[180px] h-9 bg-background/40 border-border/60 text-foreground">
           <CalendarIcon className="h-4 w-4 mr-2 text-muted-foreground" />
-          <SelectValue />
+          <SelectValue className="text-foreground" />
         </SelectTrigger>
         <SelectContent>
           {presetOptions.map((p) => (
@@ -47,7 +47,7 @@ export default function DateRangeFilter({
                 variant="outline"
                 size="sm"
                 className={cn(
-                  'justify-start text-left font-normal h-9',
+                  'justify-start text-left font-normal h-9 text-foreground bg-background/40 border-border/60',
                   !customRange.from && 'text-muted-foreground'
                 )}
               >
@@ -78,7 +78,7 @@ export default function DateRangeFilter({
                 variant="outline"
                 size="sm"
                 className={cn(
-                  'justify-start text-left font-normal h-9',
+                  'justify-start text-left font-normal h-9 text-foreground bg-background/40 border-border/60',
                   !customRange.to && 'text-muted-foreground'
                 )}
               >
