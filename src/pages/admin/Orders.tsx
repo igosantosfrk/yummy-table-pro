@@ -118,7 +118,7 @@ const Orders = () => {
             <Button
               size="sm"
               variant={viewMode === 'kanban' ? 'default' : 'ghost'}
-              className={`h-7 px-2.5 text-xs ${viewMode === 'kanban' ? 'gradient-primary shadow-sm' : ''}`}
+              className={`h-7 px-2.5 text-xs ${viewMode === 'kanban' ? 'gradient-primary shadow-sm text-primary-foreground' : 'text-foreground/75 hover:text-foreground'}`}
               onClick={() => setViewMode('kanban')}
             >
               <LayoutGrid className="h-3.5 w-3.5 mr-1" />
@@ -127,7 +127,7 @@ const Orders = () => {
             <Button
               size="sm"
               variant={viewMode === 'list' ? 'default' : 'ghost'}
-              className={`h-7 px-2.5 text-xs ${viewMode === 'list' ? 'gradient-primary shadow-sm' : ''}`}
+              className={`h-7 px-2.5 text-xs ${viewMode === 'list' ? 'gradient-primary shadow-sm text-primary-foreground' : 'text-foreground/75 hover:text-foreground'}`}
               onClick={() => setViewMode('list')}
             >
               <List className="h-3.5 w-3.5 mr-1" />
