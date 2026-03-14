@@ -47,7 +47,7 @@ export default function DateRangeFilter({
                 variant="outline"
                 size="sm"
                 className={cn(
-                  'justify-start text-left font-normal h-9',
+                  'justify-start text-left font-normal h-9 text-foreground bg-background/40 border-border/60',
                   !customRange.from && 'text-muted-foreground'
                 )}
               >
@@ -78,7 +78,7 @@ export default function DateRangeFilter({
                 variant="outline"
                 size="sm"
                 className={cn(
-                  'justify-start text-left font-normal h-9',
+                  'justify-start text-left font-normal h-9 text-foreground bg-background/40 border-border/60',
                   !customRange.to && 'text-muted-foreground'
                 )}
               >
