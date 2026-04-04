@@ -20,6 +20,7 @@ interface Product {
   is_available: boolean | null;
   is_featured: boolean | null;
   prep_time_min: number | null;
+  cost_price?: number | null;
 }
 
 interface MediaItem {
@@ -42,7 +43,7 @@ interface ProductFormDialogProps {
 
 const ProductFormDialog = ({ open, onOpenChange, tenantId, editing, categories, onSaved }: ProductFormDialogProps) => {
   const [form, setForm] = useState({
-    name: '', description: '', price: '', category_id: '', 
+    name: '', description: '', price: '', cost_price: '', category_id: '', 
     is_available: true, is_featured: false, prep_time_min: '30',
   });
   const [media, setMedia] = useState<MediaItem[]>([]);
@@ -58,11 +59,12 @@ const ProductFormDialog = ({ open, onOpenChange, tenantId, editing, categories, 
           is_available: editing.is_available ?? true,
           is_featured: editing.is_featured ?? false,
           prep_time_min: String(editing.prep_time_min || 30),
+          cost_price: String(editing.cost_price || ''),
         });
         // Load existing media
         loadMedia(editing.id);
       } else {
-        setForm({ name: '', description: '', price: '', category_id: '', is_available: true, is_featured: false, prep_time_min: '30' });
+        setForm({ name: '', description: '', price: '', cost_price: '', category_id: '', is_available: true, is_featured: false, prep_time_min: '30' });
         setMedia([]);
       }
     }
@@ -113,6 +115,7 @@ const ProductFormDialog = ({ open, onOpenChange, tenantId, editing, categories, 
       name: form.name.trim(),
       description: form.description.trim() || null,
       price: parseFloat(form.price),
+      cost_price: form.cost_price ? parseFloat(form.cost_price) : 0,
       category_id: form.category_id || null,
       image_url: coverMedia?.url || null,
       is_available: form.is_available,
@@ -173,15 +176,37 @@ const ProductFormDialog = ({ open, onOpenChange, tenantId, editing, categories, 
             <Label>Descrição</Label>
             <Textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} placeholder="Descrição do produto" />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-3">
             <div className="space-y-2">
-              <Label>Preço *</Label>
+              <Label>Preço de Custo (R$)</Label>
+              <Input type="number" step="0.01" value={form.cost_price} onChange={e => setForm({ ...form, cost_price: e.target.value })} placeholder="0.00" />
+            </div>
+            <div className="space-y-2">
+              <Label>Preço de Venda (R$) *</Label>
               <Input type="number" step="0.01" value={form.price} onChange={e => setForm({ ...form, price: e.target.value })} placeholder="0.00" />
             </div>
             <div className="space-y-2">
-              <Label>Tempo preparo (min)</Label>
-              <Input type="number" value={form.prep_time_min} onChange={e => setForm({ ...form, prep_time_min: e.target.value })} />
+              <Label>Margem de Lucro</Label>
+              {(() => {
+                const cost = parseFloat(form.cost_price) || 0;
+                const price = parseFloat(form.price) || 0;
+                const margin = price - cost;
+                const pct = price > 0 ? (margin / price) * 100 : 0;
+                const isPositive = margin > 0;
+                const isNegative = margin < 0;
+                const colorClass = isPositive ? "bg-emerald-50 text-emerald-700 border-emerald-200" : isNegative ? "bg-red-50 text-red-700 border-red-200" : "bg-gray-50 text-gray-500 border-gray-200";
+                const label = cost > 0 ? "R$ " + margin.toFixed(2) + " (" + pct.toFixed(1) + "%)" : "—";
+                return (
+                  <div className={"flex items-center justify-center h-10 rounded-md border text-sm font-semibold " + colorClass}>
+                    {label}
+                  </div>
+                );
+              })()}
             </div>
+          </div>
+          <div className="space-y-2">
+            <Label>Tempo preparo (min)</Label>
+            <Input type="number" value={form.prep_time_min} onChange={e => setForm({ ...form, prep_time_min: e.target.value })} className="max-w-[120px]" />
           </div>
           <div className="space-y-2">
             <Label>Categoria</Label>
