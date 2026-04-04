@@ -228,7 +228,7 @@ export default function ChatWindow({ contactPhone, contactName, tenantId, tenant
     try {
       const phone = contactPhone.replace(/\D/g, '');
       const { data, error: fnError } = await supabase.functions.invoke('whatsapp-send', {
-        body: { action: 'sendText', tenant_id: tenantId, to: `${phone}@s.whatsapp.net`, text: msg },
+        body: { action: 'sendText', tenant_id: tenantId, number: phone, text: msg },
       });
       const res = { ok: !fnError };
 

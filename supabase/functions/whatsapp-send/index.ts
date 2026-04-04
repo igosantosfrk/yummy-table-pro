@@ -10,14 +10,13 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { action, tenant_id, to, text } = await req.json();
+    const { action, tenant_id, to, text, number } = await req.json();
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    // Get instance for tenant
     const { data: inst } = await supabase
       .from("whatsapp_instances")
       .select("instance_name, instance_token")
@@ -30,43 +29,32 @@ serve(async (req) => {
       });
     }
 
-    const baseUrl = `https://${inst.instance_name}.uazapi.com/v2`;
+    const baseUrl = `https://${inst.instance_name}.uazapi.com`;
+    const headers = { "Content-Type": "application/json", token: inst.instance_token };
+
+    let res: Response;
 
     if (action === "sendText") {
-      const res = await fetch(`${baseUrl}/sendText`, {
+      const phone = (to || number || "").replace("@s.whatsapp.net", "");
+      res = await fetch(`${baseUrl}/send/text`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", token: inst.instance_token },
-        body: JSON.stringify({ to, text }),
+        headers,
+        body: JSON.stringify({ number: phone, text }),
       });
-      const data = await res.json();
-      return new Response(JSON.stringify(data), {
-        status: res.ok ? 200 : 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    if (action === "getQrCode") {
-      const res = await fetch(`${baseUrl}/getQrCode`, {
-        headers: { token: inst.instance_token },
-      });
-      const data = await res.json();
-      return new Response(JSON.stringify(data), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+    } else if (action === "getQrCode") {
+      res = await fetch(`${baseUrl}/qrcode`, { headers });
+    } else if (action === "status") {
+      res = await fetch(`${baseUrl}/status`, { headers });
+    } else {
+      return new Response(JSON.stringify({ error: "Unknown action" }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    if (action === "status") {
-      const res = await fetch(`${baseUrl}/status`, {
-        headers: { token: inst.instance_token },
-      });
-      const data = await res.json();
-      return new Response(JSON.stringify(data), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    return new Response(JSON.stringify({ error: "Unknown action" }), {
-      status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    const data = await res.json();
+    return new Response(JSON.stringify(data), {
+      status: res.ok ? 200 : 400,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
     console.error("whatsapp-send error:", e);
