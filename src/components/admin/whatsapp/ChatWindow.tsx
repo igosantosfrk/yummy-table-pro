@@ -220,22 +220,17 @@ export default function ChatWindow({ contactPhone, contactName, tenantId, tenant
 
   const sendMessage = async (text?: string) => {
     const msg = (text || newMessage).trim();
-    if (!msg || !instanceName || !instanceToken) {
-      if (!instanceName) toast({ title: 'WhatsApp não configurado', variant: 'destructive' });
-      return;
-    }
+    if (!msg) return;
 
     setSending(true);
     if (!text) setNewMessage('');
 
     try {
       const phone = contactPhone.replace(/\D/g, '');
-      const res = await fetch(`https://api.uazapi.com/v2/sendText/${instanceName}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', token: instanceToken },
-        body: JSON.stringify({ to: `${phone}@s.whatsapp.net`, text: msg }),
+      const { data, error: fnError } = await supabase.functions.invoke('whatsapp-send', {
+        body: { action: 'sendText', tenant_id: tenantId, to: `${phone}@s.whatsapp.net`, text: msg },
       });
-      const data = await res.json();
+      const res = { ok: !fnError };
 
       await supabase.from('whatsapp_messages').insert({
         tenant_id: tenantId,

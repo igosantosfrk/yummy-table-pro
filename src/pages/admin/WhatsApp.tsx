@@ -220,10 +220,10 @@ const WhatsApp = () => {
     setQrLoading(true);
     setQrCode(null);
     try {
-      const res = await fetch(`https://api.uazapi.com/v2/getQrCode/${instance?.instance_name}`, {
-        headers: { token: instance?.instance_token },
+      const { data, error: fnErr } = await supabase.functions.invoke('whatsapp-send', {
+        body: { action: 'getQrCode', tenant_id: tenantId },
       });
-      const data = await res.json();
+      if (fnErr) throw fnErr;
       if (data.qrcode || data.base64 || data.qr) {
         setQrCode(data.qrcode || data.base64 || data.qr);
       } else if (data.connected || data.status === 'CONNECTED') {
@@ -242,10 +242,10 @@ const WhatsApp = () => {
   const checkStatus = async () => {
     if (!instance?.instance_name || !instance?.instance_token) return;
     try {
-      const res = await fetch(`https://api.uazapi.com/v2/status/${instance?.instance_name}`, {
-        headers: { token: instance?.instance_token },
+      const { data, error: fnErr } = await supabase.functions.invoke('whatsapp-send', {
+        body: { action: 'status', tenant_id: tenantId },
       });
-      const data = await res.json();
+      if (fnErr) throw fnErr;
       const connected = data.connected === true || data.status === 'CONNECTED' || data.state === 'open';
       await supabase.from('whatsapp_instances').update({ is_connected: connected }).eq('id', instance?.id);
       toast({ title: connected ? 'WhatsApp conectado!' : 'WhatsApp desconectado' });

@@ -365,7 +365,7 @@ const Customers = () => {
       
       const phone = customer.phone.replace(/\D/g, '');
       try {
-        await fetch(`https://api.uazapi.com/v2/sendText/${waInstance.instance_name}`, {
+        await fetch(`https://igosantos.uazapi.com/v2/sendText/${waInstance.instance_name}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'token': waInstance.instance_token },
           body: JSON.stringify({ to: `${phone}@s.whatsapp.net`, text: msg }),

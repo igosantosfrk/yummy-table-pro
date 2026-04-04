@@ -228,7 +228,7 @@ serve(async (req) => {
 
         try {
           const sendRes = await fetch(
-            `https://api.uazapi.com/v2/sendText/${waInstance.instance_name}`,
+            `https://igosantos.uazapi.com/v2/sendText/${waInstance.instance_name}`,
             {
               method: "POST",
               headers: {
