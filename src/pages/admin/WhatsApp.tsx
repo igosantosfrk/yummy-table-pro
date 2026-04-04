@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { toast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { MessageSquare, Wifi, WifiOff, RefreshCw, Loader2, QrCode, CheckCircle, Phone, Send, Settings, MessageCircle } from 'lucide-react';
+import { MessageSquare, Wifi, WifiOff, RefreshCw, Loader2, QrCode, CheckCircle, Phone, Send, Settings, MessageCircle, Volume2, VolumeX } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 import ConversationList, { Conversation } from '@/components/admin/whatsapp/ConversationList';
 import ChatWindow from '@/components/admin/whatsapp/ChatWindow';
 
@@ -84,6 +85,11 @@ const WhatsApp = () => {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedPhone, setSelectedPhone] = useState<string | null>(null);
   const [selectedName, setSelectedName] = useState<string | null>(null);
+  const [showNewChat, setShowNewChat] = useState(false);
+  const [newChatPhone, setNewChatPhone] = useState('');
+  const [pinnedPhones, setPinnedPhones] = useState<Set<string>>(new Set());
+  const [labelMap, setLabelMap] = useState<Record<string, string>>({});
+  const [soundEnabled, setSoundEnabled] = useState(true);
 
   const fetchInstance = useCallback(async () => {
     if (!tenantId) return;
@@ -140,7 +146,7 @@ const WhatsApp = () => {
     const sorted = Array.from(convMap.values()).sort(
       (a, b) => new Date(b.last_message_at).getTime() - new Date(a.last_message_at).getTime()
     );
-    setConversations(sorted);
+    setConversations(sorted.map(cv => ({ ...cv, is_pinned: pinnedPhones.has(cv.contact_phone), label: labelMap[cv.contact_phone] || null })));
   }, [tenantId]);
 
   useEffect(() => {
@@ -163,6 +169,45 @@ const WhatsApp = () => {
 
     return () => { supabase.removeChannel(channel); };
   }, [tenantId, fetchConversations]);
+
+  // Sound for new messages
+  const playMessageSound = useCallback(() => {
+    if (!soundEnabled) return;
+    try {
+      const ctx = new AudioContext();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.value = 600; osc.type = 'sine';
+      gain.gain.setValueAtTime(0.2, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
+      osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.15);
+    } catch (e) {}
+  }, [soundEnabled]);
+
+  useEffect(() => {
+    if (!tenantId) return;
+    const channel = supabase.channel('wa-new-msg-sound')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'whatsapp_messages' }, (payload: any) => {
+        if (payload.new?.direction === 'incoming' && payload.new?.tenant_id === tenantId) playMessageSound();
+      }).subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [tenantId, playMessageSound]);
+
+  const togglePin = (phone: string) => {
+    setPinnedPhones(prev => { const n = new Set(prev); if (n.has(phone)) n.delete(phone); else n.add(phone); return n; });
+  };
+
+  const setLabel = (phone: string, label: string | null) => {
+    setLabelMap(prev => { const n = { ...prev }; if (label) n[phone] = label; else delete n[phone]; return n; });
+  };
+
+  const startNewChat = () => {
+    const phone = newChatPhone.replace(/\D/g, '');
+    if (phone.length < 10) { toast({ title: 'Numero invalido', variant: 'destructive' }); return; }
+    const formatted = phone.startsWith('55') ? phone : '55' + phone;
+    setSelectedPhone(formatted); setSelectedName(null); setShowNewChat(false); setNewChatPhone('');
+  };
 
   const selectConversation = (phone: string) => {
     setSelectedPhone(phone);
@@ -251,8 +296,11 @@ const WhatsApp = () => {
             </TabsTrigger>
           </TabsList>
 
-          {/* Connection status */}
+          {/* Sound + Connection */}
           <div className="flex items-center gap-2">
+            <button onClick={() => setSoundEnabled(!soundEnabled)} className="p-1.5 rounded-lg hover:bg-gray-100" title={soundEnabled ? 'Desativar som' : 'Ativar som'}>
+              {soundEnabled ? <Volume2 className="h-4 w-4 text-primary" /> : <VolumeX className="h-4 w-4 text-gray-400" />}
+            </button>
             {isConnected ? (
               <Badge className="bg-emerald-50 text-emerald-700 border border-emerald-200 gap-1">
                 <Wifi className="h-3 w-3" /> Conectado
@@ -275,7 +323,22 @@ const WhatsApp = () => {
                   conversations={conversations}
                   selectedPhone={selectedPhone}
                   onSelect={selectConversation}
+                  onNewConversation={() => setShowNewChat(true)}
+                  onTogglePin={togglePin}
+                  onSetLabel={setLabel}
                 />
+                {showNewChat && (
+                  <div className="absolute inset-0 bg-black/30 z-30 flex items-center justify-center" onClick={() => setShowNewChat(false)}>
+                    <div className="bg-white rounded-xl p-5 w-80 shadow-xl" onClick={e => e.stopPropagation()}>
+                      <h3 className="font-bold text-gray-900 mb-3">Nova Conversa</h3>
+                      <Input value={newChatPhone} onChange={e => setNewChatPhone(e.target.value)} placeholder="(11) 99999-9999" className="mb-3" onKeyDown={e => e.key === 'Enter' && startNewChat()} autoFocus />
+                      <div className="flex gap-2">
+                        <Button variant="outline" className="flex-1" onClick={() => setShowNewChat(false)}>Cancelar</Button>
+                        <Button className="flex-1 gradient-primary text-white" onClick={startNewChat}>Iniciar</Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Chat Window or Empty State */}
@@ -285,6 +348,7 @@ const WhatsApp = () => {
                     contactPhone={selectedPhone}
                     contactName={selectedName}
                     tenantId={tenantId!}
+                    tenantSlug="meu-restaurante"
                     instanceName={instance?.instance_name}
                     instanceToken={instance?.instance_token}
                     onBack={() => setSelectedPhone(null)}

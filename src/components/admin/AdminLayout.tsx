@@ -1,5 +1,6 @@
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { useState, useEffect, useRef } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
@@ -9,6 +10,7 @@ import {
   MessageSquare, CreditCard, LogOut, Menu, X, UtensilsCrossed,
   Shield, Megaphone, Users
 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 const menuItems = [
   { path: '/admin', label: 'Dashboard', icon: LayoutDashboard },
@@ -26,7 +28,23 @@ const superAdminItem = { path: '/admin/super', label: 'Super Admin', icon: Shiel
 
 const AdminLayout = ({ children }: { children: React.ReactNode }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { profile, isSuperAdmin, signOut } = useAuth();
+  const { profile, isSuperAdmin, signOut, tenantId } = useAuth();
+  const [waUnread, setWaUnread] = useState(0);
+
+  useEffect(() => {
+    if (!tenantId) return;
+    const fetchUnread = async () => {
+      const { count } = await supabase.from('whatsapp_messages')
+        .select('id', { count: 'exact', head: true })
+        .eq('tenant_id', tenantId).eq('direction', 'incoming').eq('is_read', false);
+      setWaUnread(count || 0);
+    };
+    fetchUnread();
+    const ch = supabase.channel('wa-unread-badge')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'whatsapp_messages' }, () => fetchUnread())
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [tenantId]);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -77,6 +95,9 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
                 )}>
                 <item.icon className="h-4 w-4" />
                 {item.label}
+                {item.path === '/admin/whatsapp' && waUnread > 0 && (
+                  <Badge className="ml-auto bg-primary text-white text-[10px] px-1.5 py-0 h-4 min-w-4">{waUnread}</Badge>
+                )}
               </Link>
             );
           })}
