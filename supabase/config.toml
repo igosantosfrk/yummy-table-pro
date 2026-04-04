@@ -14,3 +14,9 @@ verify_jwt = false
 
 [functions.send-whatsapp-campaigns]
 verify_jwt = false
+
+[functions.stripe-webhook]
+verify_jwt = false
+
+[functions.whatsapp-webhook]
+verify_jwt = false

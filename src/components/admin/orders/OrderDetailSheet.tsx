@@ -6,6 +6,8 @@ import { Separator } from '@/components/ui/separator';
 import { Clock, MapPin, Phone, Mail, CreditCard, ExternalLink, User, Package, Truck, Hash, Globe } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Order, OrderItem, OrderStatus, statusConfig, paymentMethodLabels, paymentStatusLabels, getTimeAgo } from './types';
+import { toast } from '@/hooks/use-toast';
+import { CheckCircle, DollarSign } from 'lucide-react';
 
 interface Props {
   order: Order | null;
@@ -134,12 +136,26 @@ export default function OrderDetailSheet({ order, open, onOpenChange, onStatusCh
             </span>
             <div className="flex items-center gap-2">
               <Badge variant="outline" className="text-xs">{paymentMethodLabels[order.payment_method]}</Badge>
-              <Badge className={`text-xs ${order.payment_status === 'confirmed' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border-amber-500/20'} border`}>
+              <Badge className={`text-xs ${(order.payment_status === 'confirmed' || order.payment_status === 'paid') ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : order.payment_status === 'failed' ? 'bg-red-500/10 text-red-400 border-red-500/20' : 'bg-amber-500/10 text-amber-400 border-amber-500/20'} border`}>
                 {paymentStatusLabels[order.payment_status]}
               </Badge>
             </div>
             {order.stripe_payment_intent_id && (
               <p className="text-[11px] text-muted-foreground mt-2 font-mono">ID: {order.stripe_payment_intent_id}</p>
+            )}
+            {order.payment_status === 'pending' && (
+              <Button
+                size="sm"
+                className="w-full mt-3 bg-emerald-600 hover:bg-emerald-700 text-white"
+                onClick={async () => {
+                  await supabase.from('orders').update({ payment_status: 'confirmed' }).eq('id', order.id);
+                  toast({ title: 'Pagamento confirmado!' });
+                  onOpenChange(false);
+                }}
+              >
+                <DollarSign className="h-4 w-4 mr-1" />
+                Marcar como Pago
+              </Button>
             )}
           </div>
 

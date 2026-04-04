@@ -150,7 +150,7 @@ const PublicMenu = () => {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[hsl(220,20%,7%)]">
+      <div className="flex min-h-screen items-center justify-center bg-[#f5f5f7]">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
       </div>
     );
@@ -158,10 +158,10 @@ const PublicMenu = () => {
 
   if (!tenant) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[hsl(220,20%,7%)] text-[hsl(220,14%,96%)]">
+      <div className="flex min-h-screen items-center justify-center bg-[#f5f5f7] text-gray-800">
         <div className="text-center">
           <h1 className="text-2xl font-display font-bold">Restaurante não encontrado</h1>
-          <p className="text-[hsl(220,10%,55%)] mt-2">Verifique o link e tente novamente</p>
+          <p className="text-gray-400 mt-2">Verifique o link e tente novamente</p>
         </div>
       </div>
     );
@@ -175,15 +175,22 @@ const PublicMenu = () => {
     return handleBackToCategories;
   };
 
-  const showCart = screen.type !== 'checkout' && screen.type !== 'success';
+  const showCart = screen.type !== 'checkout' && screen.type !== 'success' && tenant.is_open !== false;
 
   return (
-    <div className="min-h-screen bg-[hsl(220,20%,7%)] text-[hsl(220,14%,96%)] pb-24">
+    <div className="min-h-screen bg-[#f5f5f7] text-gray-800 pb-24">
       {screen.type !== 'checkout' && screen.type !== 'success' && <MenuHeader tenant={tenant} />}
+
+      {!tenant.is_open && (
+        <div className="mx-4 mt-4 p-4 rounded-xl bg-red-50 border border-red-200 text-center">
+          <p className="text-red-700 font-semibold text-sm">Restaurante fechado no momento</p>
+          <p className="text-red-500 text-xs mt-1">Volte mais tarde para fazer seu pedido</p>
+        </div>
+      )}
 
       <div className="mt-6">
         {screen.type === 'categories' && (
-          <CategoryListScreen categories={categories} onSelectCategory={handleSelectCategory} />
+          <CategoryListScreen categories={categories} products={products} onSelectCategory={handleSelectCategory} onAddToCart={addToCart} />
         )}
 
         {screen.type === 'sizes' && (
@@ -212,6 +219,7 @@ const PublicMenu = () => {
             tenantId={tenant.id}
             tenantSlug={tenant.slug}
             deliveryFee={tenant.delivery_fee}
+            minOrderValue={tenant.min_order_value}
             sessionId={sessionId}
             utmParams={utmParams}
             onBack={() => setScreen({ type: 'categories' })}

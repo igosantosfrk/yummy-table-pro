@@ -32,6 +32,9 @@ interface CheckoutRequest {
   utm_term?: string;
   utm_content?: string;
   utm_ad_link?: string;
+  discount?: number;
+  coupon_code?: string;
+  coupon_id?: string;
 }
 
 serve(async (req) => {
@@ -44,7 +47,7 @@ serve(async (req) => {
     const {
       tenant_id, items, customer_name, customer_phone, customer_email,
       delivery_address, delivery_neighborhood, delivery_city, delivery_notes,
-      delivery_fee, session_id,
+      delivery_fee, discount, coupon_code, coupon_id, session_id,
       utm_source, utm_medium, utm_campaign, utm_term, utm_content, utm_ad_link,
     } = body;
 
@@ -79,7 +82,7 @@ serve(async (req) => {
     });
 
     const subtotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
-    const total = subtotal + (delivery_fee || 0);
+    // total calculated in insert
 
     // Create the order first
     const { data: order, error: orderError } = await supabaseAdmin
@@ -95,7 +98,10 @@ serve(async (req) => {
         delivery_notes: delivery_notes || null,
         delivery_fee: delivery_fee || 0,
         subtotal,
-        total,
+        discount: discount || 0,
+        coupon_code: coupon_code || null,
+        coupon_id: coupon_id || null,
+        total: subtotal - (discount || 0) + (delivery_fee || 0),
         payment_method: "online",
         payment_status: "pending",
         status: "new",

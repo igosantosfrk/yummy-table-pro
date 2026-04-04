@@ -1,11 +1,12 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useAutoPrint } from "@/hooks/useAutoPrint";
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
-import { ShoppingBag, LayoutGrid, List, ChefHat, Truck, CheckCircle, XCircle, Clock, Sparkles } from 'lucide-react';
+import { ShoppingBag, LayoutGrid, List, ChefHat, Truck, CheckCircle, XCircle, Clock, Sparkles, Volume2, VolumeX } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable, type DropResult } from '@hello-pangea/dnd';
 import DateRangeFilter from '@/components/admin/DateRangeFilter';
 import { useDateRange } from '@/hooks/useDateRange';
@@ -14,6 +15,7 @@ import OrderCard from '@/components/admin/orders/OrderCard';
 import OrderDetailSheet from '@/components/admin/orders/OrderDetailSheet';
 import CustomerDetailSheet from '@/components/admin/orders/CustomerDetailSheet';
 import OrderListView from '@/components/admin/orders/OrderListView';
+import { toast } from '@/hooks/use-toast';
 
 type ViewMode = 'kanban' | 'list';
 
@@ -27,6 +29,7 @@ const columnIcons: Record<string, React.ElementType> = {
 
 const Orders = () => {
   const { tenantId } = useAuth();
+  useAutoPrint(tenantId);
   const { preset, setPreset, dateRange, customRange, setCustomRange } = useDateRange('today');
   const [orders, setOrders] = useState<Order[]>([]);
   const [viewMode, setViewMode] = useState<ViewMode>('kanban');
@@ -35,21 +38,67 @@ const Orders = () => {
   const [customerOpen, setCustomerOpen] = useState(false);
   const [customerOrder, setCustomerOrder] = useState<Order | null>(null);
   const [statusFilter, setStatusFilter] = useState<OrderStatus | 'all'>('all');
+  const [isDragging, setIsDragging] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const orderIdsRef = useRef<Set<string>>(new Set());
+  const initialLoadRef = useRef(true);
 
-  const fetchOrders = async () => {
-    if (!tenantId) return;
-    const { data } = await supabase
-      .from('orders')
-      .select('*')
-      .eq('tenant_id', tenantId)
-      .gte('created_at', dateRange.from.toISOString())
-      .lte('created_at', dateRange.to.toISOString())
-      .order('created_at', { ascending: true });
-    setOrders((data || []) as Order[]);
-  };
+  const playNewOrderSound = useCallback(() => {
+    if (!soundEnabled) return;
+    try {
+      const ctx = new AudioContext();
+      const playTone = (freq: number, start: number, dur: number) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.value = freq;
+        osc.type = "sine";
+        gain.gain.setValueAtTime(0.3, ctx.currentTime + start);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + start + dur);
+        osc.start(ctx.currentTime + start);
+        osc.stop(ctx.currentTime + start + dur);
+      };
+      playTone(880, 0, 0.15);
+      playTone(1100, 0.15, 0.15);
+      playTone(1320, 0.3, 0.25);
+    } catch (e) { console.warn("Audio not available:", e); }
+  }, [soundEnabled]);
+
+  const fetchOrders = useCallback(async () => {
+    if (!tenantId || isDragging) return; // Don't fetch while dragging
+    try {
+      const { data } = await supabase
+        .from('orders')
+        .select('*')
+        .eq('tenant_id', tenantId)
+        .gte('created_at', dateRange.from.toISOString())
+        .lte('created_at', dateRange.to.toISOString())
+        .order('created_at', { ascending: true });
+      const fetched = (data || []) as Order[];
+      setOrders(fetched);
+
+      // Detect new orders and play sound
+      if (initialLoadRef.current) {
+        orderIdsRef.current = new Set(fetched.map(o => o.id));
+        initialLoadRef.current = false;
+      } else {
+        const newOrders = fetched.filter(o => o.status === 'new' && !orderIdsRef.current.has(o.id));
+        if (newOrders.length > 0) {
+          playNewOrderSound();
+          toast({ title: 'Novo pedido!', description: 'Pedido #' + newOrders[newOrders.length - 1].order_number });
+        }
+        orderIdsRef.current = new Set(fetched.map(o => o.id));
+      }
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+    }
+  }, [tenantId, dateRange.from, dateRange.to, isDragging, playNewOrderSound]);
 
   useEffect(() => {
     fetchOrders();
+    
+    // Realtime subscription - pause during drag
     const channel = supabase
       .channel('orders-realtime')
       .on('postgres_changes', {
@@ -57,27 +106,51 @@ const Orders = () => {
         schema: 'public',
         table: 'orders',
         filter: `tenant_id=eq.${tenantId}`,
-      }, () => fetchOrders())
+      }, () => {
+        if (!isDragging) {
+          fetchOrders();
+        }
+      })
       .subscribe();
-    return () => { supabase.removeChannel(channel); };
-  }, [tenantId, dateRange.from.getTime(), dateRange.to.getTime()]);
+    
+    return () => { 
+      supabase.removeChannel(channel); 
+    };
+  }, [tenantId, dateRange.from, dateRange.to, isDragging, fetchOrders]);
 
   const updateStatus = async (orderId: string, newStatus: OrderStatus) => {
-    const updateData: any = { status: newStatus };
-    if (newStatus === 'completed') updateData.delivered_at = new Date().toISOString();
-    if (newStatus === 'cancelled') updateData.cancelled_at = new Date().toISOString();
-    await supabase.from('orders').update(updateData).eq('id', orderId);
-    fetchOrders();
+    try {
+      const updateData: any = { status: newStatus };
+      if (newStatus === 'completed') updateData.delivered_at = new Date().toISOString();
+      if (newStatus === 'cancelled') updateData.cancelled_at = new Date().toISOString();
+      
+      await supabase.from('orders').update(updateData).eq('id', orderId);
+      await fetchOrders();
+    } catch (error) {
+      console.error('Error updating status:', error);
+    }
+  };
+
+  const handleDragStart = () => {
+    setIsDragging(true);
   };
 
   const handleDragEnd = useCallback((result: DropResult) => {
+    setIsDragging(false);
+    
     const { draggableId, destination } = result;
     if (!destination) return;
+    
     const newStatus = destination.droppableId as OrderStatus;
     const order = orders.find(o => o.id === draggableId);
     if (!order || order.status === newStatus) return;
+    
     // Optimistic update
-    setOrders(prev => prev.map(o => o.id === draggableId ? { ...o, status: newStatus } : o));
+    setOrders(prev => prev.map(o => 
+      o.id === draggableId ? { ...o, status: newStatus } : o
+    ));
+    
+    // Update in database
     updateStatus(draggableId, newStatus);
   }, [orders]);
 
@@ -113,6 +186,16 @@ const Orders = () => {
           <p className="text-sm text-muted-foreground">{orders.length} pedidos no período</p>
         </motion.div>
         <div className="flex items-center gap-3">
+          {/* Sound Toggle */}
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-7 w-7 p-0"
+            onClick={() => setSoundEnabled(!soundEnabled)}
+            title={soundEnabled ? "Desativar som" : "Ativar som"}
+          >
+            {soundEnabled ? <Volume2 className="h-4 w-4 text-primary" /> : <VolumeX className="h-4 w-4 text-muted-foreground" />}
+          </Button>
           {/* View Toggle */}
           <div className="flex items-center bg-muted/30 rounded-lg p-0.5 border border-border/20">
             <Button
@@ -183,7 +266,7 @@ const Orders = () => {
           </CardContent>
         </Card>
       ) : viewMode === 'kanban' ? (
-        <DragDropContext onDragEnd={handleDragEnd}>
+        <DragDropContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
           <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
             {kanbanColumns.map(status => {
               const config = statusConfig[status];

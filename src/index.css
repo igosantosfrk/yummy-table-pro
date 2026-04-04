@@ -6,20 +6,20 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 220 20% 10%;
+    --background: 0 0% 99%;
+    --foreground: 220 20% 14%;
 
     --card: 0 0% 100%;
-    --card-foreground: 220 20% 10%;
+    --card-foreground: 220 20% 14%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 20% 10%;
+    --popover-foreground: 220 20% 14%;
 
     --primary: 15 90% 55%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 220 14% 96%;
-    --secondary-foreground: 220 20% 10%;
+    --secondary-foreground: 220 20% 14%;
 
     --muted: 220 14% 96%;
     --muted-foreground: 220 10% 46%;
@@ -45,13 +45,13 @@
     --info: 217 91% 60%;
     --info-foreground: 0 0% 100%;
 
-    --sidebar-background: 220 20% 7%;
-    --sidebar-foreground: 220 14% 80%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 220 20% 30%;
     --sidebar-primary: 15 90% 55%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 16% 14%;
-    --sidebar-accent-foreground: 220 14% 80%;
-    --sidebar-border: 220 16% 16%;
+    --sidebar-accent: 220 14% 96%;
+    --sidebar-accent-foreground: 220 20% 14%;
+    --sidebar-border: 220 13% 91%;
     --sidebar-ring: 15 90% 55%;
   }
 
@@ -147,5 +147,13 @@
 
   .shadow-glow-sm {
     box-shadow: 0 0 15px -3px hsl(var(--primary) / 0.2);
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
   }
 }

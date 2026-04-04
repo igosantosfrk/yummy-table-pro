@@ -17,37 +17,32 @@ interface SizeSelectionScreenProps {
 
 const SizeSelectionScreen = ({ parentCategory, subCategories, onSelectSubCategory, onBack }: SizeSelectionScreenProps) => {
   return (
-    <div className="max-w-2xl mx-auto px-4 mt-6">
-      <button
-        onClick={onBack}
-        className="flex items-center gap-2 text-[hsl(220,10%,55%)] hover:text-[hsl(220,14%,96%)] transition-colors mb-4"
-      >
+    <div className="max-w-2xl mx-auto px-4">
+      <button onClick={onBack} className="flex items-center gap-2 text-gray-400 hover:text-gray-700 transition-colors mb-5">
         <ArrowLeft className="h-4 w-4" />
         <span className="text-sm font-medium">Voltar</span>
       </button>
-
-      <h2 className="text-xl font-display font-bold text-[hsl(220,14%,96%)] mb-2">
-        {parentCategory.icon ? `${parentCategory.icon} ` : ''}{parentCategory.name}
-      </h2>
-      <p className="text-sm text-[hsl(220,10%,55%)] mb-6">Escolha o tamanho</p>
-
+      <div className="mb-6">
+        <h2 className="text-xl font-bold text-gray-900">
+          {parentCategory.icon ? `${parentCategory.icon} ` : ''}{parentCategory.name}
+        </h2>
+        <p className="text-sm text-gray-400 mt-1">Escolha o tamanho</p>
+      </div>
       <div className="space-y-3">
         {subCategories.map((sub, i) => (
           <motion.button
             key={sub.id}
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05 }}
             onClick={() => onSelectSubCategory(sub)}
-            className="w-full flex items-center justify-between p-4 rounded-xl bg-[hsl(220,18%,12%)]/80 backdrop-blur-xl border border-[hsl(220,16%,18%)]/50 hover:shadow-glow-sm transition-all group text-left"
+            className="w-full flex items-center justify-between p-4 rounded-2xl bg-white border border-gray-100 hover:border-primary/20 hover:shadow-lg transition-all group text-left shadow-sm"
           >
             <div className="flex items-center gap-3">
-              {sub.icon && <span className="text-2xl">{sub.icon}</span>}
-              <span className="text-lg font-semibold text-[hsl(220,14%,96%)] group-hover:text-primary transition-colors">
-                {sub.name}
-              </span>
+              {sub.icon && <span className="text-2xl group-hover:scale-110 transition-transform">{sub.icon}</span>}
+              <span className="text-base font-semibold text-gray-700 group-hover:text-primary transition-colors">{sub.name}</span>
             </div>
-            <ChevronRight className="h-5 w-5 text-[hsl(220,10%,55%)] group-hover:text-primary transition-colors" />
+            <ChevronRight className="h-5 w-5 text-gray-300 group-hover:text-primary transition-colors" />
           </motion.button>
         ))}
       </div>

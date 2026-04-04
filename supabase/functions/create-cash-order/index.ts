@@ -25,6 +25,9 @@ interface OrderRequest {
   delivery_notes?: string;
   delivery_fee: number;
   payment_method: "cash" | "credit_card" | "debit_card";
+  discount?: number;
+  coupon_code?: string;
+  coupon_id?: string;
   session_id?: string;
   utm_source?: string;
   utm_medium?: string;
@@ -44,7 +47,7 @@ serve(async (req) => {
     const {
       tenant_id, items, customer_name, customer_phone, customer_email,
       delivery_address, delivery_neighborhood, delivery_city, delivery_notes,
-      delivery_fee, payment_method, session_id,
+      delivery_fee, payment_method, discount, coupon_code, coupon_id, session_id,
       utm_source, utm_medium, utm_campaign, utm_term, utm_content, utm_ad_link,
     } = body;
 
@@ -61,7 +64,7 @@ serve(async (req) => {
     );
 
     const subtotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
-    const total = subtotal + (delivery_fee || 0);
+    // total calculated in insert
 
     const { data: order, error: orderError } = await supabaseAdmin
       .from("orders")
@@ -76,7 +79,10 @@ serve(async (req) => {
         delivery_notes: delivery_notes || null,
         delivery_fee: delivery_fee || 0,
         subtotal,
-        total,
+        discount: discount || 0,
+        coupon_code: coupon_code || null,
+        coupon_id: coupon_id || null,
+        total: subtotal - (discount || 0) + (delivery_fee || 0),
         payment_method,
         payment_status: "pending",
         status: "new",

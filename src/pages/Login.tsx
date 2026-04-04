@@ -30,17 +30,8 @@ const Login = () => {
     setLoading(true);
 
     try {
-      if (isLogin) {
-        await signIn(email, password);
+      await signIn(email, password);
         toast({ title: 'Bem-vindo de volta!' });
-        // Redirect will happen via useEffect when roles load
-      } else {
-        await signUp(email, password, fullName);
-        toast({
-          title: 'Conta criada!',
-          description: 'Verifique seu email para confirmar o cadastro.',
-        });
-      }
     } catch (error: any) {
       toast({
         title: 'Erro',
@@ -53,7 +44,7 @@ const Login = () => {
   };
 
   return (
-    <div className="flex min-h-screen dark">
+    <div className="flex min-h-screen">
       {/* Left side - Branding */}
       <div className="hidden lg:flex lg:w-1/2 gradient-primary relative overflow-hidden items-center justify-center">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(0,0,0,0)_0%,rgba(0,0,0,0.4)_100%)]" />
@@ -106,22 +97,6 @@ const Login = () => {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
-                {!isLogin && (
-                  <div className="space-y-2">
-                    <Label htmlFor="fullName">Nome completo</Label>
-                    <div className="relative">
-                      <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="fullName"
-                        placeholder="Seu nome"
-                        value={fullName}
-                        onChange={e => setFullName(e.target.value)}
-                        className="pl-10"
-                        required
-                      />
-                    </div>
-                  </div>
-                )}
 
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
@@ -176,17 +151,7 @@ const Login = () => {
                 </Button>
               </form>
 
-              <div className="mt-6 text-center">
-                <button
-                  type="button"
-                  onClick={() => setIsLogin(!isLogin)}
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
-                  {isLogin
-                    ? 'Não tem conta? Criar conta'
-                    : 'Já tem conta? Fazer login'}
-                </button>
-              </div>
+
             </CardContent>
           </Card>
         </motion.div>

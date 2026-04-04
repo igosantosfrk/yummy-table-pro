@@ -12,7 +12,6 @@ import Dashboard from "@/pages/admin/Dashboard";
 import Products from "@/pages/admin/Products";
 import Categories from "@/pages/admin/Categories";
 import Orders from "@/pages/admin/Orders";
-import Delivery from "@/pages/admin/Delivery";
 import Payments from "@/pages/admin/Payments";
 import WhatsApp from "@/pages/admin/WhatsApp";
 import AdminSettings from "@/pages/admin/AdminSettings";
@@ -22,6 +21,12 @@ import PublicMenu from "@/pages/menu/PublicMenu";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
+
+const AdminPage = ({ children }: { children: React.ReactNode }) => (
+  <ProtectedRoute requiredRole="tenant_admin">
+    <AdminLayout>{children}</AdminLayout>
+  </ProtectedRoute>
+);
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -33,24 +38,23 @@ const App = () => (
           <Routes>
             <Route path="/login" element={<Login />} />
 
-            {/* Admin Panel - both super_admin and tenant_admin */}
-            <Route path="/admin" element={
-              <ProtectedRoute requiredRole="tenant_admin"><AdminLayout /></ProtectedRoute>
-            }>
-              <Route index element={<Dashboard />} />
-              <Route path="products" element={<Products />} />
-              <Route path="categories" element={<Categories />} />
-              <Route path="orders" element={<Orders />} />
-              <Route path="delivery" element={<Delivery />} />
-              <Route path="customers" element={<Customers />} />
-              <Route path="payments" element={<Payments />} />
-              <Route path="marketing" element={<Marketing />} />
-              <Route path="whatsapp" element={<WhatsApp />} />
-              <Route path="settings" element={<AdminSettings />} />
-              <Route path="super" element={
-                <ProtectedRoute requiredRole="super_admin"><SuperAdmin /></ProtectedRoute>
-              } />
-            </Route>
+            {/* Admin Panel */}
+            <Route path="/admin" element={<AdminPage><Dashboard /></AdminPage>} />
+            <Route path="/admin/products" element={<AdminPage><Products /></AdminPage>} />
+            <Route path="/admin/categories" element={<AdminPage><Categories /></AdminPage>} />
+            <Route path="/admin/orders" element={<AdminPage><Orders /></AdminPage>} />
+            <Route path="/admin/customers" element={<AdminPage><Customers /></AdminPage>} />
+            <Route path="/admin/payments" element={<AdminPage><Payments /></AdminPage>} />
+            <Route path="/admin/marketing" element={<AdminPage><Marketing /></AdminPage>} />
+            <Route path="/admin/whatsapp" element={<AdminPage><WhatsApp /></AdminPage>} />
+            <Route path="/admin/settings" element={<AdminPage><AdminSettings /></AdminPage>} />
+            <Route path="/admin/super" element={
+              <ProtectedRoute requiredRole="tenant_admin">
+                <AdminLayout>
+                  <ProtectedRoute requiredRole="super_admin"><SuperAdmin /></ProtectedRoute>
+                </AdminLayout>
+              </ProtectedRoute>
+            } />
 
             {/* Public Menu */}
             <Route path="/:slug" element={<PublicMenu />} />
