@@ -23,6 +23,54 @@ interface WaInstance {
   auto_send_completed: boolean | null;
 }
 
+
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+
+const SetupForm = ({ tenantId, onComplete }: { tenantId: string; onComplete: () => void }) => {
+  const [name, setName] = useState('');
+  const [token, setToken] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = async () => {
+    if (!name.trim() || !token.trim()) {
+      toast({ title: 'Preencha nome e token da instância', variant: 'destructive' });
+      return;
+    }
+    setSaving(true);
+    const { error } = await supabase.from('whatsapp_instances').insert({
+      tenant_id: tenantId,
+      instance_name: name.trim(),
+      instance_token: token.trim(),
+      is_connected: false,
+    });
+    setSaving(false);
+    if (error) {
+      toast({ title: 'Erro ao salvar', description: error.message, variant: 'destructive' });
+      return;
+    }
+    toast({ title: 'Instância configurada!' });
+    onComplete();
+  };
+
+  return (
+    <div className="max-w-md mx-auto space-y-4">
+      <div className="space-y-2">
+        <Label>Nome da Instância (UaZapi)</Label>
+        <Input value={name} onChange={e => setName(e.target.value)} placeholder="ex: minha-instancia" />
+      </div>
+      <div className="space-y-2">
+        <Label>Token da Instância</Label>
+        <Input value={token} onChange={e => setToken(e.target.value)} placeholder="Token de acesso UaZapi" type="password" />
+      </div>
+      <Button onClick={handleSave} disabled={saving} className="w-full gradient-primary text-white">
+        {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <CheckCircle className="h-4 w-4 mr-2" />}
+        Salvar e Configurar
+      </Button>
+    </div>
+  );
+};
+
 const WhatsApp = () => {
   const { tenantId } = useAuth();
   const [instance, setInstance] = useState<WaInstance | null>(null);
@@ -127,15 +175,15 @@ const WhatsApp = () => {
     setQrLoading(true);
     setQrCode(null);
     try {
-      const res = await fetch(`https://api.uazapi.com/v2/getQrCode/${instance.instance_name}`, {
-        headers: { token: instance.instance_token },
+      const res = await fetch(`https://api.uazapi.com/v2/getQrCode/${instance?.instance_name}`, {
+        headers: { token: instance?.instance_token },
       });
       const data = await res.json();
       if (data.qrcode || data.base64 || data.qr) {
         setQrCode(data.qrcode || data.base64 || data.qr);
       } else if (data.connected || data.status === 'CONNECTED') {
         toast({ title: 'WhatsApp já está conectado!' });
-        await supabase.from('whatsapp_instances').update({ is_connected: true }).eq('id', instance.id);
+        await supabase.from('whatsapp_instances').update({ is_connected: true }).eq('id', instance?.id);
         fetchInstance();
       } else {
         toast({ title: 'Não foi possível gerar QR Code', description: JSON.stringify(data), variant: 'destructive' });
@@ -149,12 +197,12 @@ const WhatsApp = () => {
   const checkStatus = async () => {
     if (!instance?.instance_name || !instance?.instance_token) return;
     try {
-      const res = await fetch(`https://api.uazapi.com/v2/status/${instance.instance_name}`, {
-        headers: { token: instance.instance_token },
+      const res = await fetch(`https://api.uazapi.com/v2/status/${instance?.instance_name}`, {
+        headers: { token: instance?.instance_token },
       });
       const data = await res.json();
       const connected = data.connected === true || data.status === 'CONNECTED' || data.state === 'open';
-      await supabase.from('whatsapp_instances').update({ is_connected: connected }).eq('id', instance.id);
+      await supabase.from('whatsapp_instances').update({ is_connected: connected }).eq('id', instance?.id);
       toast({ title: connected ? 'WhatsApp conectado!' : 'WhatsApp desconectado' });
       fetchInstance();
     } catch (err: any) {
@@ -165,7 +213,7 @@ const WhatsApp = () => {
   const toggleAutoSend = async (field: string, value: boolean) => {
     if (!instance) return;
     setSaving(true);
-    await supabase.from('whatsapp_instances').update({ [field]: value }).eq('id', instance.id);
+    await supabase.from('whatsapp_instances').update({ [field]: value }).eq('id', instance?.id);
     setInstance(prev => prev ? { ...prev, [field]: value } : null);
     setSaving(false);
     toast({ title: 'Configuração salva!' });
@@ -179,22 +227,7 @@ const WhatsApp = () => {
     );
   }
 
-  if (!instance) {
-    return (
-      <div className="space-y-6">
-        <h1 className="text-2xl font-display font-bold">WhatsApp</h1>
-        <Card className="glass border-dashed">
-          <CardContent className="flex flex-col items-center justify-center py-16">
-            <MessageSquare className="h-12 w-12 text-muted-foreground mb-4" />
-            <p className="text-lg font-medium text-muted-foreground">WhatsApp não configurado</p>
-            <p className="text-sm text-muted-foreground mt-1">Entre em contato com o suporte para ativar o WhatsApp</p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  const isConnected = instance.is_connected === true;
+  const isConnected = instance?.is_connected === true;
   const totalUnread = conversations.reduce((s, c) => s + c.unread_count, 0);
 
   return (
@@ -252,8 +285,8 @@ const WhatsApp = () => {
                     contactPhone={selectedPhone}
                     contactName={selectedName}
                     tenantId={tenantId!}
-                    instanceName={instance.instance_name}
-                    instanceToken={instance.instance_token}
+                    instanceName={instance?.instance_name}
+                    instanceToken={instance?.instance_token}
                     onBack={() => setSelectedPhone(null)}
                   />
                 ) : (
@@ -272,8 +305,20 @@ const WhatsApp = () => {
 
         {/* Settings Tab */}
         <TabsContent value="settings" className="mt-4 space-y-6">
-          {/* Connection Card */}
-          <Card className="glass">
+          {/* Setup or Connection Card */}
+          {!instance && (
+            <Card className="glass border-dashed border-amber-200 bg-amber-50/50">
+              <CardContent className="py-8">
+                <div className="text-center mb-6">
+                  <MessageSquare className="h-10 w-10 text-amber-500 mx-auto mb-3" />
+                  <p className="text-lg font-semibold text-gray-900">Configure o WhatsApp</p>
+                  <p className="text-sm text-gray-500 mt-1">Insira os dados da sua instância UaZapi para ativar o chat</p>
+                </div>
+                <SetupForm tenantId={tenantId!} onComplete={fetchInstance} />
+              </CardContent>
+            </Card>
+          )}
+          {instance && (<Card className="glass">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 font-display">
                 <MessageSquare className="h-5 w-5 text-green-500" /> Conexão
@@ -293,9 +338,9 @@ const WhatsApp = () => {
                   )}
                   <div>
                     <p className="font-semibold text-lg">{isConnected ? 'Conectado' : 'Desconectado'}</p>
-                    {instance.phone_number && (
+                    {instance?.phone_number && (
                       <p className="text-sm text-muted-foreground flex items-center gap-1">
-                        <Phone className="h-3 w-3" /> {instance.phone_number}
+                        <Phone className="h-3 w-3" /> {instance?.phone_number}
                       </p>
                     )}
                   </div>
@@ -330,10 +375,9 @@ const WhatsApp = () => {
                 </div>
               )}
             </CardContent>
-          </Card>
+          </Card>)}
 
-          {/* Auto-send Settings */}
-          <Card className="glass">
+          {instance && (<Card className="glass">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 font-display">
                 <Send className="h-5 w-5 text-primary" /> Mensagens Automáticas
@@ -344,10 +388,10 @@ const WhatsApp = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               {[
-                { field: 'auto_send_confirmation', label: 'Confirmação de Pedido', desc: 'Enviada quando o pedido é recebido', value: instance.auto_send_confirmation },
-                { field: 'auto_send_preparing', label: 'Em Preparo', desc: 'Enviada quando o pedido começa a ser preparado', value: instance.auto_send_preparing },
-                { field: 'auto_send_delivery', label: 'Saiu para Entrega', desc: 'Enviada quando o pedido sai para entrega', value: instance.auto_send_delivery },
-                { field: 'auto_send_completed', label: 'Pedido Entregue', desc: 'Enviada quando o pedido é finalizado', value: instance.auto_send_completed },
+                { field: 'auto_send_confirmation', label: 'Confirmação de Pedido', desc: 'Enviada quando o pedido é recebido', value: instance?.auto_send_confirmation },
+                { field: 'auto_send_preparing', label: 'Em Preparo', desc: 'Enviada quando o pedido começa a ser preparado', value: instance?.auto_send_preparing },
+                { field: 'auto_send_delivery', label: 'Saiu para Entrega', desc: 'Enviada quando o pedido sai para entrega', value: instance?.auto_send_delivery },
+                { field: 'auto_send_completed', label: 'Pedido Entregue', desc: 'Enviada quando o pedido é finalizado', value: instance?.auto_send_completed },
               ].map(item => (
                 <div key={item.field} className="flex items-center justify-between p-3 rounded-lg bg-muted/20 border border-border/20">
                   <div>
@@ -365,7 +409,7 @@ const WhatsApp = () => {
                 <p className="text-xs text-amber-600 text-center">Conecte o WhatsApp para ativar as mensagens automáticas</p>
               )}
             </CardContent>
-          </Card>
+          </Card>)}
         </TabsContent>
       </Tabs>
     </div>
